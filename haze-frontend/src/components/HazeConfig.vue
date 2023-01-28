@@ -26,16 +26,37 @@
         Remember
     </button>
 
+    <div class="card-body">Returned bit string: {{ bitString }}</div>
+
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     props: {
+    },
+    data() {
+        return {
+            bitString: null
+        };
     },
     methods: {
         get_random_place: function () {
             return places[Math.floor(Math.random() * places.length)];
         },
+        submit: function () {
+            // Simple POST request with a JSON body using axios
+            const data = { place1: "Biker bar", prob1: 80 };
+
+            axios.post('/api', data)
+                .then(res => {
+                    this.bitString = res.data.bitString;
+                })
+                .catch(err => {
+                    alert('something went wrong!');
+                })
+        }
     }
 }
 
