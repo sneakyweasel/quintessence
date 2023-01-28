@@ -1,0 +1,101 @@
+<template>
+    <div class="row">
+        <div class="col">
+            <h1>Enter places you might have been to:</h1>
+            <hr>
+        </div>
+    </div>
+
+    <div v-for="i in 10" :key="'row' + i">
+        <div class="row" :key="i">
+            <div class="col-3"></div>
+            <div class="col">
+                <input type="text" class="form-control" :value="get_random_place()" :key="'place' + i">
+            </div>
+            <div class="col">
+                <input type="range" class="form-range" min="0" max="100" step="10" :key="'prob' + i">
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+    <hr>
+
+
+    <hr>
+    <button class="btn btn-outline-dark">
+        Remember
+    </button>
+
+</template>
+
+<script>
+export default {
+    props: {
+    },
+    methods: {
+        get_random_place: function () {
+            return places[Math.floor(Math.random() * places.length)];
+        },
+    }
+}
+
+var places = [
+    "A rooftop bar",
+    "A comedy club",
+    "A concert venue",
+    "A music festival",
+    "A street fair",
+    "A bowling alley",
+    "A casino",
+    "A sports stadium",
+    "A karaoke bar",
+    "A restaurant with live music",
+    "A rooftop terrace",
+    "A beach bonfire",
+    "A drive-in movie theater",
+    "A laser tag arena",
+    "A trampoline park",
+    "An escape room",
+    "A miniature golf course",
+    "A rock climbing gym",
+    "A go-kart track",
+    "A bowling alley",
+    "A comedy club",
+    "A concert hall",
+    "A music festival",
+    "A street festival",
+    "A rooftop pool",
+    "A rooftop garden",
+    "A lounge",
+    "A dance club",
+    "A public square",
+    "A rooftop yoga class"];
+
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h1 {
+    color: gray;
+    margin-top: 0px;
+    font-family: 'RoadRage', serif;
+    font-size: 30px;
+    text-shadow: 0 0 20px gray;
+}
+
+input[type="text"],
+textarea {
+    background-color: #151515;
+    color: white;
+    font-family: 'RoadRage', serif;
+    font-size: 20px;
+}
+
+button {
+    color: magenta;
+    margin-top: 0px;
+    font-family: 'RoadRage', serif;
+    font-size: 40px;
+    text-shadow: 0 0 20px magenta;
+}
+</style>
