@@ -26,8 +26,7 @@ Some ideas:
 Once you've debugged your code with regular simulation, please try our noisy simulators before graduating to hardware (if you have time). Hardware noise can have unexpected effects!
 We will judge your entry based on both (1) how quantum it is and (2) how cool it is.
 
-### Requirements
+## Quantum hangover
 
-- Must be new and innovative
-- Must be quantum
-- Added points for social media visibility
+We are using a [quantum walk search algorithm](https://qiskit.org/textbook/ch-algorithms/quantum-walk-search-algorithm.html) running on IonQ to output results of a graph traversal algorithm which represents the drunken journey of our main character and how he tries to figure out what happened to him the previous night.
+This output will be fed back into a transformers AI model and then to a stable diffusion AI model to generate a exciting dynamic storyline with associated graphics.
