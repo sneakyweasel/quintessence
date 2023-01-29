@@ -1,0 +1,226 @@
+
+\usepackage{etoolbox}
+\usepackage{graphicx}             % to include figures
+\usepackage{amsmath}            % additional math symbols.
+\usepackage{amsfonts}            % additional math fonts.
+\usepackage{mathrsfs}
+\usepackage{bbm}
+\usepackage{amsthm}
+\usepackage{amssymb}           
+\usepackage{fancyhdr}
+\usepackage{sectsty}
+\usepackage{setspace}
+\usepackage{cancel}
+\usepackage{faktor}
+\usepackage{tensor}
+
+\usepackage[dvipsnames]{xcolor}
+\definecolor{ForestGreen}{RGB}{34,139,34}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings}
+\usepackage[compat=1.1.0]{tikz-feynman} 
+\usepackage{natbib}
+\usepackage{tikz-cd}
+
+\usepackage{xargs}
+\usepackage[colorinlistoftodos]{todonotes}
+
+
+\usepackage{hyperref}
+
+\usepackage[listings]{tcolorbox}
+\tcbuselibrary{listings,theorems}
+\usetikzlibrary{shadings,shadows,decorations.pathmorphing, shapes.geometric, snakes}
+\tcbuselibrary{most}
+
+\usepackage{textcomp}
+\usepackage{slashed}
+\usepackage{mathtools}
+\usepackage{mathdots}
+
+\usepackage{wrapfig} 
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{subcaption}
+\usepackage{etoolbox}
+\usepackage[shortlabels]{enumitem}
+
+\usepackage[nottoc]{tocbibind}
+\usepackage{tocloft}
+
+\hypersetup{
+	colorlinks=true, %set true if you want colored links
+	linktoc=all,     %set to all if you want both sections and subsections linked
+	linkcolor=black, 
+}
+
+\pagestyle{fancy}
+\allsectionsfont{\raggedright}
+\sectionfont{\fontsize{14}{15}\selectfont}
+\subsectionfont{\fontsize{13}{15}\selectfont}
+\singlespacing
+\allowdisplaybreaks
+%\numberwithin{equation}{subsection}
+
+
+
+\newcounter{todoListItems}
+ \newcommand{\todoTrans}[2][ ]{
+   % Increment counter
+   \addtocounter{todoListItems}{1}
+   \todo[%
+     caption={\protect\hypertarget{todo\thetodoListItems}{}#2},
+#1] {
+#2 \hfill
+     \hyperlink{todo\thetodoListItems}{$\uparrow$}
+   }
+}
+\newcommandx{\change}[2][1=]{\todoTrans[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\unsure}[2][1=]{\todoTrans[linecolor=Magenta,backgroundcolor=Magenta!25,bordercolor=Magenta,#1]{#2}}
+\newcommandx{\expandon}[2][1=]{\todoTrans[linecolor=ForestGreen,backgroundcolor=ForestGreen!25,bordercolor=ForestGreen,#1]{#2}}
+\newcommandx{\sortout}[2][1=]{\todoTrans[linecolor=LimeGreen,backgroundcolor=LimeGreen!25,bordercolor=LimeGreen,#1]{#2}}
+\newcommandx{\add}[2][1=]{\todoTrans[linecolor=SkyBlue,backgroundcolor=SkyBlue!25,bordercolor=SkyBlue,#1]{#2}}
+% This bit of code makes the appendix show up properly in the table of contents.
+\makeatletter
+\def\@mkboth#1#2{}
+\newlength\appendixwidth
+\preto\appendix{\addtocontents{toc}{\protect\patchl@section}}
+\newcommand{\patchl@section}{%
+  \settowidth{\appendixwidth}{\textbf{Appendix }}%
+  \addtolength{\appendixwidth}{1.5em}%
+  \patchcmd{\l@section}{1.5em}{\appendixwidth}{}{\ddt}%
+}
+
+
+
+\newcommand{\braket}[1]{\left<#1\right>}
+\newcommand{\bra}[1]{\left< #1 \right|}
+\newcommand{\ket}[1]{\left| #1 \right>}
+\newcommand{\inner}[2]{\left< #1|#2 \right>}
+\newcommand{\innerc}[2]{\left< #1|#2 \right>}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\drc}[1]{\slashed{#1}}
+\newcommand{\bd}[1]{\overset{\leftrightarrow}{#1}}
+\newcommand{\Mint}[2]{\int\frac{d^#1 #2}{(2\pi)^#1}}
+\newcommand{\gf}{\gamma^5}
+\newcommand{\Der}{\mathcal{D}}
+\newcommand{\MM}{\mathcal{M}}
+\newcommand{\fixme}{\colorbox{red}{\textbf{FIX ME!}}}
+\newcommand{\eval}[3]{\left.#1\right\vert_{#2}^{#3}}
+\newcommand{\at}[2]{\left.#1\right\vert_{#2}}
+\newcommand{\abs}[1]{\left\vert #1 \right\vert}
+
+\newcommand{\RomNum}[1]
+    {\MakeUppercase{\romannumeral #1}}
+    
+\newcommand{\ra}{\rightarrow}
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\la}{\leftarrow}
+\newcommand{\La}{\Leftarrow}
+\newcommand{\infint}{\int_{-\infty}^{+\infty}}
+\newcommand{\brac}[1]{\left[ #1 \right]}
+\newcommand{\curly}[1]{\left\{ #1\right\}}
+\newcommand{\para}[1]{\left( #1 \right)}
+\newcommand{\eli}{\text{...}}
+\newcommand{\Qed}{\blacksquare}
+
+\renewcommand{\i}{\mathrm{i}}
+
+\newcommand{\T}[1]{\text{#1}}
+\newcommand{\makeset}[2]{\curly{#1\::\:#2}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Id}{\text{Id}}
+\newcommand{\Ext}{\text{Ext}}
+\newcommand{\Hom}{\text{Hom}}
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+\DeclareMathOperator{\Ric}{Ric}
+\DeclareMathOperator{\vol}{vol}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Pf}{Pf}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\sech}{sech}
+
+\newcommand{\eint}{\mathlarger{\int}}
+\newcommand{\esum}{\mathlarger{\sum}}
+
+
+\newcommand{\lgs}{\hspace{10mm}}
+\newcommand{\sms}{\hspace{5mm}}
+\newcommand{\ts}{\textsuperscript}
+\newcommand{\nl}{\newline}
+\newcommand{\nsg}{\mathrel{\unlhd}}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Sym}{Sym}
+\newcommand{\kn}{\mathbin{\bigcirc\mspace{-15mu}\wedge\mspace{3mu}}}
+
+\let\cancelorigcolor\CancelColor% Just for conveniency...
+\newcommand{\CancelTo}[3][]{%
+  \ifblank{#1}{}{%
+    \renewcommand{\CancelColor}{\color{#1}}%
+  }
+  \cancelto{#2}{#3}% 
+}
+
+\newcommand{\Lag}{\mathcal{L}}
+\newcommand{\horline}[1]{\rule{\linewidth}{#1}}
+
+\DeclareMathOperator{\Hess}{Hess}
+
+
+\tikzset{->-/.style={decoration={
+  markings,
+  mark=at position .5 with {\arrow{>}}},postaction={decorate}}}
+
+
+
+\theoremstyle{plain}
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+
+\newtheorem{proposition}{Proposition}
+
+
+
+
+\newcommand{\listofconfusionsnames}{\fontsize{14}{15}\selectfont List of Confusions}
+
+\newlistof[section]{confusions}{conf}{\listofconfusionsnames}
+
+\makeatletter
+\let\listofconfusionsorig\listofconfusions% Store original version
+\renewcommand{\listofconfusions}{%
+  \addcontentsline{toc}{section}{\listofconfusionsnames}% Add toc line
+  \listofconfusionsorig
+}
+\makeatother
+
+\newenvironment{confusion}[1]
+  {\refstepcounter{confusions}
+    \ifblank{#1}  
+      {
+        \begin{tcolorbox}[skin=bicolor,colback=YellowOrange!20!white,colframe=YellowOrange!90!black, breakable]
+        \addcontentsline{conf}{confusions}{\protect{Untitled Confusion}}
+      }
+      {
+        \begin{tcolorbox}[skin=bicolor,colback=YellowOrange!20!white,colframe=YellowOrange!90!black, adjusted title={#1}, breakable]
+        \addcontentsline{conf}{confusions}{\protect{#1}}
+      }
+  }
+  {
+    \end{tcolorbox}
+  }
+
+
+\makeatletter
+\renewcommand*\env@matrix[1][\arraystretch]{%
+  \edef\arraystretch{#1}%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{*\c@MaxMatrixCols c}}
+\makeatother
