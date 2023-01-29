@@ -14,74 +14,62 @@
         </div>
         <hr>
 
-        <div v-for="(step, index) in steps" :key="'step_div' + index">
-            <div class="row">
-                <h1>Step {{ index }}</h1>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-1"></div>
-                <div class="col-5">
-                    <img class="img" :src="'../../../assets/pic' + index + '.png'" alt="" width="500px">
-                </div>
-                <div class="col-5">
-                    <p class="steps">{{ step }}</p>
-
-                </div>
-                <div class="col-1"></div>
-            </div>
-            <hr>
-            <hr>
+        <div class="row">
+            <h2>First step</h2>
         </div>
+        <hr>
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-5">
+                <img class="img" src="../../../assets/pic0.png" alt="" width="500px">
+            </div>
+            <div class="col-5">
+                <p class="steps">
+                    {{ steps[0] }}
+                </p>
+            </div>
+            <div class="col-1"></div>
+        </div>
+        <hr>
+        <hr>
 
-        <!-- <div class="row">
-                <h1>Second step</h1>
+        <div class="row">
+            <h2>Second step</h2>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-5">
+                <img class="img" src="../../../assets/pic1.png" alt="" width="500px">
             </div>
-            <hr>
-            <div class="row">
-                <div class="col-1"></div>
-                <div class="col-5">
-                    <img class="img" src="../../../assets/pic1.png" alt="" width="500px">
-                </div>
-                <div class="col-5">
-                    <p class="steps">
-                        As he tried to piece together the events of the night, he remembered that he had been at the
-                        concert
-                        venue with some friends. They had been dancing and singing along to the music, and he had been
-                        feeling incredibly alive. After the concert, they had decided to go to the rooftop bar to get a
-                        drink and enjoy the view.
-                    </p>
-                </div>
-                <div class="col-1"></div>
+            <div class="col-5">
+                <p class="steps">
+                    {{ steps[1] }}
+                </p>
             </div>
-            <hr>
-            <hr> -->
+            <div class="col-1"></div>
+        </div>
+        <hr>
+        <hr>
 
-        <!-- <div class="row">
-                <h1>Third step</h1>
+        <div class="row">
+            <h2>Third step</h2>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-5">
+                <img class="img" src="../../../assets/pic2.png" alt="" width="500px">
             </div>
-            <hr>
-            <div class="row">
-                <div class="col-1"></div>
-                <div class="col-5">
-                    <img class="img" src="../../../assets/pic2.png" alt="" width="500px">
-                </div>
-                <div class="col-5">
-                    <p class="steps">
-                        Mr. Quanta remembered that the rooftop bar had been crowded, and he had been talking to some
-                        people
-                        he had just met. He remembered that they had been discussing philosophy and the meaning of life.
-                        He
-                        had been feeling inspired and energized by the conversation, and he had been enjoying himself
-                        immensely. Suddenly, he had felt incredibly tired and had decided to take a nap. He had no idea
-                        how
-                        long he had been asleep, but he was glad to be back in the present moment.
-                    </p>
-                </div>
-                <div class="col-1"></div>
+            <div class="col-5">
+                <p class="steps">
+                    {{ steps[2] }}
+                </p>
             </div>
-            <hr>
-            <hr> -->
+            <div class="col-1"></div>
+        </div>
+        <hr>
+        <hr>
 
     </div>
 </template>
@@ -109,6 +97,14 @@ h1 {
     font-family: 'RoadRage', serif;
     font-size: 30px;
     text-shadow: 0 0 20px gray;
+}
+
+h2 {
+    color: magenta;
+    margin-top: 0px;
+    font-family: 'RoadRage', serif;
+    font-size: 30px;
+    text-shadow: 0 0 20px magenta;
 }
 
 input[type="text"],
