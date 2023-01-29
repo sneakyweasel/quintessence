@@ -23,7 +23,7 @@ class CircuitSpec:
         self.start = start  # starting site
         self.steps = steps  # number of trotter steps
         self.speed = speed
-        self.likelyhood = likelyhood
+        self.likelyhood = likelyhood #that's the K values
         self.backend = backend
         # Depends on the configuration of the application.
 
@@ -265,7 +265,6 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
 def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_state):
     #entropy_specifier = "chaotic"
     #initial_state = "gutter"
-    openai.api_key = "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"
     prompt_init = "Write a fiction story about Mr. Quanta's past journey in 3 steps. "
     prompt_init += "He only remembers a few things. "
     prompt_init += "He had a " + entropy_specifier + " time before awakening at the " + initial_state + ", and before that"
@@ -286,7 +285,8 @@ def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_st
 
 
 
-@app.route('/api', methods = ['POST'])
+#@app.route('/api', methods = ['POST'])
+#@app.route('/')
 def full_circ_instance():
     # provider
     provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
@@ -297,13 +297,23 @@ def full_circ_instance():
     #places - a list of strings
     #probs - a list of strings (a number)
     #start - a number (the index)
-    data = request.json
-    list_places = data.get['places']
-    list_probs = data.get['prob']
-    
+    #data = request.json
+    #list_places = data.get['places']
+    #list_probs = data.get['prob']
+    list_places = ["A rooftop bar",
+    "A comedy club",
+    "A concert venue",
+    "A music festival",
+    "A street fair",
+    "A bowling alley",
+    "A casino"]
+    list_probs = [0,0,0,0,0,0,0]
+
+    K_max = np.pi/4
+    K_vals = np.zeros(len(list_probs))
     #parse into numerical values the probs array
     for j in range(len(list_probs)):
-        K_vals = int(list_probs[j])/100.0
+        K_vals[j] = K_max*int(list_probs[j])/100.0
 
     start = 0
     #start = data.get['start']
@@ -314,9 +324,10 @@ def full_circ_instance():
     final_vals = run.random_walk()
 
     #feed final_vals into Rob's cleanup function
-    processed_vals = Clean_Results(final_vals, n_walker = 1)
+    processed_vals = Clean_Results(final_vals, n_walkers = 1)
     list_of_likelyhood = find_likelyhood_strings(processed_vals)
     #get entropy from results
+    entropy_specifier = wording_entropy(0.5, max_val = np.log(len(list_probs)))
 
     #feed resulting array into Gavin's plotting object
     #do not take into account the last value for the plot - that's the Errors!
@@ -327,10 +338,17 @@ def full_circ_instance():
     #saves picture into assets/roseplot.png
 
     #feed into openai function
-    entropy_specifier = 0.5
-    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, start)
+    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, list_places[start])
     print(storyline)
 
 
 if __name__ == "__main__":
-    app.run()
+    #app.run()
+    #1 call the API
+
+    full_circ_instance()
+
+    #do function
+
+
+
