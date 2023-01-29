@@ -20,6 +20,8 @@ from PIL import Image, ImageFilter
 import requests
 from Plotter import Entropy, PolarPlotmaker
 import json
+from Plotter import Entropy, PolarPlotmaker
+import json
 
 openai.api_key = "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"
 
@@ -241,15 +243,6 @@ def image_from_response(storyline):
         with open('./haze-frontend/public/pic'+str(step)+'.png', 'wb') as handler:
             handler.write(img_data)
 
-    #save the processed GPT text to a json file
-    dictionary = {"steps": processed, "urls" : img_urls}
-    # Serializing json
-    json_object = json.dumps(dictionary, indent=1)
-    
-    # Writing to sample.json
-    with open("./haze-frontend/public/steps.json", "w") as outfile:
-        outfile.write(json_object)
-
 #@app.route('/api', methods = ['POST'])
 #@app.route('/')
 def full_circ_instance(verbose, sim_type, N_qubits, start, steps, activate_ai):
@@ -358,10 +351,9 @@ if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    #false AI pipeline
-    full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12, start = 4, steps = 3, activate_ai=False)
-    #true AI pipeline    
-    #full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12, start = 4, steps = 3, activate_ai=True)
+    full_circ_instance(verbose = True)
+
+    #do function
 
 
 
