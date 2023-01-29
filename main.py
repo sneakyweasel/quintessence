@@ -3,14 +3,23 @@ from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import Parameter
 from qiskit_ionq import IonQProvider
 import numpy as np
-from flask import Flask
+from flask import Flask, request
+import json
+import os
+import matplotlib.pylab as plt
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import matplotlib.colorbar as colorbar
+from scipy.stats import norm
+#import openai
+
+# Load your API key from an environment variable or secret management service
 app = Flask(__name__)
 
 # this will be the url
 
 
 class CircuitSpec:
-
     def __init__(self, start, steps, speed, likelyhood, backend):
         self.start = start  # starting site
         self.steps = steps  # number of trotter steps
@@ -63,21 +72,194 @@ class CircuitSpec:
         # Return the counts for the jobs
         return job.result().get_counts()
 
+def find_likelyhood_strings(array):
+    possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
+    list_of_likelyhood = []
+    for ua in array:
+        if 0 <= ua < 0.1:
+            ind = 0
+        elif 0.1 <= ua < 0.4:
+            ind = 1
+        elif 0.4 <= ua < 0.6:
+            ind = 2
+        elif 0.6 <= ua < 0.9:
+            ind = 3        
+        elif 0.9 <= ua < 1.0:
+            ind = 4
+        #append to list
+        list_of_likelyhood.append(possibilities[ind])
+    return list_of_likelyhood
 
-@app.route('/')
+def wording_entropy(entropy_val, max_val):
+    possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
+    normed_entropy = entropy_val/max_val
+    if 0 <= normed_entropy < 0.1:
+        ind = 0
+    elif 0.1 <= normed_entropy < 0.4:
+        ind = 1
+    elif 0.4 <= normed_entropy < 0.6:
+        ind = 2
+    elif 0.6 <= normed_entropy < 0.9:
+        ind = 3        
+    elif 0.9 <= normed_entropy < 1.0:
+        ind = 4
+
+    return possibilities[ind]
+
+
+def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'limegreen', linelength = 10, pad = 15, save_name = None):
+    labels_type = 'string'
+    N = len(probabilities)
+    angles = np.linspace(0,2*np.pi-2*np.pi/N,N)
+    
+    angles = np.concatenate((angles,[angles[0]]))
+    probabilities = np.concatenate((probabilities,[probabilities[0]]))
+
+    if debug:
+        print(f'Angles (length {len(angles)}): {np.round(angles,4)}')
+        print(f'Probabilies (length {len(probabilities)}): {np.round(probabilities,4)}')
+
+    
+    if labels is not None:
+        if len(labels)!=N:
+            labels = np.arange(0,N)
+            labels_type = 'int'
+        
+
+    if labels is None:
+        labels = np.arange(0,N)
+        labels_type = 'int'
+
+
+    if labels_type == 'string':
+        labels_modified = []
+        for label in labels:
+            new_label = ""
+            lines = 1
+            first_step = True
+            for i, letter in enumerate(label):
+                if lines == 3:
+                    new_label = new_label[:-3]
+                    new_label += '...'
+                    break
+                if i % linelength == 0 and not first_step:
+                    lines+=1
+                    if new_label[-1] != ' ':
+                        new_label +='-'
+                    new_label += '\n'
+                new_label += letter
+                first_step = False
+            if new_label[:2] == "A " or new_label[:2] == "a ":
+                new_label=new_label[2:]
+            labels_modified.append(new_label)     
+
+    plt.figure(figsize=figsize, dpi = dpi)
+    
+    ax = plt.subplot(111, polar=True)
+
+    z = angles
+    normalize = colors.Normalize(vmin=z.min(), vmax=z.max())
+
+    cmap = colors.LinearSegmentedColormap.from_list("", ["aqua","mediumslateblue","orchid",'magenta', 'mediumorchid', 'mediumpurple','dodgerblue']*2)
+
+    ax.plot(angles, probabilities, linewidth=1, linestyle='solid')
+    
+    # Fill area
+    #ax.fill(angles, values, 'b', alpha=0.1)
+
+    ax.set_yticklabels([])
+    ax.get_yaxis().set_ticks([])
+
+    for i in range(len(probabilities)-1):
+        ax.fill_between([angles[i], angles[i+1]], [probabilities[i], probabilities[i+1]], color=cmap(normalize(z[i])))
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels_modified, color = tick_color)
+    ax.xaxis.set_tick_params(grid_linewidth = 1, grid_color = tick_color, pad = pad)
+    
+    ax.spines['polar'].set_color(tick_color)
+    
+    ax.set_ylim(0,max(probabilities))
+
+    ax.set_facecolor(background)
+
+
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
+    # Show the graph
+    plt.tight_layout()
+    
+    if type(save_name)==str:
+        plt.savefig(save_name, transparent = True)
+    #plt.show()
+    
+
+
+def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier):
+
+    # Initial prompt text
+    prompt_init = "Write a fiction story about Mr. Quanta's journey in 5 paragraphs. "
+    prompt_init += "He had a " + entropy_specifier + " time going around QuantaLand."
+    prompt_init += " night out. The main character lost all memory of what he did and tries to figure out what he did the previous night. Provide a 5 steps story about his drunken journey. He woke up in the hospital." 
+
+    # Probabilities array as text
+    input_places = ["bar", "zoo"]
+    input_strings = ["unlikely", "likely"]
+    lvals = len(input_strings) - 1
+    for i in range(lvals):
+        prompt_init += " He " + input_probs[i] + " went to the " + input_places[i] + "."
+
+    response = openai.Completion.create(model="text-davinci-003", prompt=prompt_init, temperature=0, max_tokens=400)
+
+    return response.choices[0].text
+
+
+@app.route('/api', methods = ['POST'])
 def full_circ_instance():
     # provider
     provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
     provider.backends()
     backend = provider.get_backend("ionq_simulator")
 
+    #open json file.
+    #places - a list of strings
+    #probs - a list of strings (a number)
+    #start - a number (the index)
+    data = request.json
+    list_places = data.get['places']
+    list_probs = data.get['prob']
+    
+    #parse into numerical values the probs array
+    for j in range(len(list_probs)):
+        K_vals = int(list_probs[j])/100.0
+
     start = 0
-    K_vals = np.zeros(12)
+    #start = data.get['start']
     steps = 30
-    K_vals[0] = +np.pi/2
-    J_val = np.pi/10
+    #steps = data.get['steps']
+    J_val = np.pi/4 #set a default speed value
     run = CircuitSpec(start, steps, J_val, K_vals, backend)
     final_vals = run.random_walk()
+
+    #feed final_vals into Rob's cleanup function
+
+    #processed_vals = 
+
+    list_of_likelyhood = find_likelyhood_strings(processed_vals)
+
+    #feed resulting array into Gavin's plotting object
+
+    #do not take into account the last value for the plot - that's the Errors!
+    PolarPlotmaker(processed_vals[:-1], labels = list_places,debug = False, background='black', tick_color='chartreuse', save_name='./assets/roseplot.png', dpi = 200)
+    #this takes into
+    #list_places
+    #processed_vals
+    #saves picture into assets/roseplot.png
+
+    #feed into openai function
+    #create json ["story"] of final GPT3 result
+    #send that back to the API
+
+
 
     return final_vals
 
