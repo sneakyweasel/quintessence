@@ -91,7 +91,7 @@ def find_likelyhood_strings(array):
     return list_of_likelyhood
 
 def wording_entropy(entropy_val, max_val):
-    possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
+    possibilities = ["uneventful", "boring", "regular", "exciting", "chaotic"]
     normed_entropy = entropy_val/max_val
     if 0 <= normed_entropy < 0.1:
         ind = 0
@@ -194,19 +194,22 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
     
 
 
-def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier):
+def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_state):
+    #entropy_specifier = "chaotic"
+    #initial_state = "gutter"
+    prompt_init = "Write a fiction story about Mr. Quanta's past journey in 3 steps. "
+    prompt_init += "He only remembers a few things. "
+    prompt_init += "He had a " + entropy_specifier + " time before awakening in the " + initial_state + ", before that"
 
-    # Initial prompt text
-    prompt_init = "Write a fiction story about Mr. Quanta's journey in 5 paragraphs. "
-    prompt_init += "He had a " + entropy_specifier + " time going around QuantaLand."
-    prompt_init += " night out. The main character lost all memory of what he did and tries to figure out what he did the previous night. Provide a 5 steps story about his drunken journey. He woke up in the hospital." 
 
     # Probabilities array as text
-    input_places = ["bar", "zoo"]
-    input_strings = ["unlikely", "likely"]
-    lvals = len(input_strings) - 1
+    #input_places = ["bar", "zoo"]
+    #input_strings = ["unlikely", "likely"]
+    lvals = len(input_places)
     for i in range(lvals):
-        prompt_init += " He " + input_probs[i] + " went to the " + input_places[i] + "."
+        prompt_init += ", he " + input_probs[i] + " went to the " + input_places[i]
+
+    prompt_init += "."
 
     response = openai.Completion.create(model="text-davinci-003", prompt=prompt_init, temperature=0, max_tokens=400)
 
@@ -237,14 +240,15 @@ def full_circ_instance():
     steps = 30
     #steps = data.get['steps']
     J_val = np.pi/4 #set a default speed value
-    run = CircuitSpec(start, steps, J_val, K_vals, backend)
-    final_vals = run.random_walk()
+    circuit = CircuitSpec(start, steps, J_val, K_vals, backend)
+    final_vals = circuit.random_walk()
 
     #feed final_vals into Rob's cleanup function
 
-    #processed_vals = 
+    processed_vals = f(final_vals) 
 
-    list_of_likelyhood = find_likelyhood_strings(processed_vals)
+    list_of_likelyhood = find_likelyhood_strings(processed_vals[:-1])
+    entropy_specifier = wording_entropy(entropy_val, max_val)
 
     #feed resulting array into Gavin's plotting object
 
@@ -258,10 +262,8 @@ def full_circ_instance():
     #feed into openai function
     #create json ["story"] of final GPT3 result
     #send that back to the API
-
-
-
-    return final_vals
+    storyline = gpt_prompt_and_eval(list_places, processed_vals[:-1], entropy_specifier)
+    print(storyline)
 
 
 if __name__ == "__main__":
