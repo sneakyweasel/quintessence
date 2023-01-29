@@ -377,9 +377,11 @@ def image_from_response(storyline):
         if len(prepro[i]) > 20:
             processed.append(prepro[i])
 
+    pre_prompt = "Digital art in the style of retrowave."
+
     for step in range(len(processed)):
         #print(processed[step])
-        img = openai.Image.create(prompt=processed[step], n=1,size="1024x1024")
+        img = openai.Image.create(prompt=pre_prompt + processed[step], n=1,size="1024x1024")
         img_url = img["data"][0]["url"]
         #print("Image " + step + " url:" + img_url)
         img_data = requests.get(img_url).content
