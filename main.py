@@ -17,11 +17,10 @@ import matplotlib.pylab as plt
 from matplotlib import patheffects
 #plt.rcParams['path.effects'] = [patheffects.withStroke(linewidth=4, foreground='b')]
 from PIL import Image, ImageFilter
+import requests
 
-openai.api_key = "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"
+openai.api_key = "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"
 
-
-openai.api_key = "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"
 
 # Load your API key from an environment variable or secret management service
 app = Flask(__name__)
@@ -151,19 +150,16 @@ def Clean_Results(counts, n_walkers, verbose = False):
     return sites_prob
 
 def find_likelyhood_strings(array):
-    possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
+    possibilities = [0, "may have gone ",  "likely went "]
+    #this can be changed
     list_of_likelyhood = []
     for ua in array:
-        if 0 <= ua < 0.1:
+        if 0 <= ua < 0.25:
             ind = 0
-        elif 0.1 <= ua < 0.4:
-            ind = 1
-        elif 0.4 <= ua < 0.6:
+        elif 0.25 <= ua < 0.75:
+            ind = 1      
+        elif 0.75 <= ua < 1.0:
             ind = 2
-        elif 0.6 <= ua < 0.9:
-            ind = 3        
-        elif 0.9 <= ua < 1.0:
-            ind = 4
         #append to list
         list_of_likelyhood.append(possibilities[ind])
     return list_of_likelyhood
@@ -359,15 +355,36 @@ def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_st
     #input_strings = ["unlikely", "likely"]
     lvals = len(input_places)
     for i in range(lvals):
-        prompt_init += ", he " + input_probs[i] + " went to the " + input_places[i]
+        if input_probs[i] != 0:
+            prompt_init += ", he " + input_probs[i] + " went to the " + input_places[i]
 
     prompt_init += "."
 
     response = openai.Completion.create(model="text-davinci-003", prompt=prompt_init, temperature=0, max_tokens=400)
 
+    f = open("./assets/response.txt", "a")
+    f.write(response.choices[0].text)
+    f.close()
+
     return response.choices[0].text
 
+def image_from_response(storyline):
+    #split the text
+    prepro = storyline.split('\n')
+    #print(prepro)
+    processed = []
+    for i in range(len(prepro)):
+        if len(prepro[i]) > 20:
+            processed.append(prepro[i])
 
+    for step in range(len(processed)):
+        #print(processed[step])
+        img = openai.Image.create(prompt=processed[step], n=1,size="1024x1024")
+        img_url = img["data"][0]["url"]
+        #print("Image " + step + " url:" + img_url)
+        img_data = requests.get(img_url).content
+        with open('./assets/pic'+str(step)+'.png', 'wb') as handler:
+            handler.write(img_data)
 
 #@app.route('/api', methods = ['POST'])
 #@app.route('/')
@@ -409,6 +426,7 @@ def full_circ_instance(verbose):
 
     if verbose==True:
         print("\n")
+        print("Bitstring results and shot number out of 1024 total shots")
         print(final_vals)
         print("\n")
 
@@ -430,12 +448,17 @@ def full_circ_instance(verbose):
     storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, list_places[start])
     print(storyline)
 
+    #clean storyline into 3 separated paragraphs
+    #feed into Dall-E API
+
+    image_from_response(storyline)
+
 
 if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    full_circ_instance(True)
+    full_circ_instance(verbose = True)
 
     #do function
 
