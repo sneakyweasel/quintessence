@@ -72,6 +72,75 @@ class CircuitSpec:
         # Return the counts for the jobs
         return job.result().get_counts()
 
+def Clean_Results(counts, n_walkers, verbose = False):
+    if verbose:
+        print(f'Number of possible end states: {len(counts)}')
+    shots = 0
+    for key in counts.keys():
+        shots += counts.get(key)
+    walkers = {}
+    extras = {}
+    for key in counts.keys():
+        totes = 0
+        for l in key:
+            if l == '1':
+                totes += 1
+            else:
+                pass
+        if totes == n_walkers:
+            walkers[key] = counts.get(key)
+        else:
+            extras[key] = counts.get(key)  
+    if verbose:
+        print(f'Number of walkers: {n_walkers}')
+        print(f'Number of {n_walkers} occurences: {len(walkers)}')
+        print(f'Number of extra occurences: {len(extras)}')
+    walkers_prob = {}
+    error_prob = 0
+    for key in walkers.keys():
+        prob = 0
+        if walkers.get(key) == None:
+            walkers_prob[key] = 0
+        else:
+            walkers_prob[key] = walkers.get(key) / shots
+    extras_count = 0
+    for key in extras.keys():
+        if extras.get(key) == None:
+            extras_count += 0
+        else:
+            extras_count += extras.get(key)
+    error_prob = extras_count / shots
+    if verbose:
+        print(f'Number of {n_walkers} walkers states: {len(walkers)}')
+    totes_walkers_prob = 0
+    for key in walkers_prob.keys():
+        totes_walkers_prob += walkers_prob.get(key)
+    if verbose:
+        print(f'Probability of {n_walkers} walkers: {totes_walkers_prob}')
+        print(f'Probability of errors: {error_prob}')
+        print(f'(Sanity check) Total Probability: {totes_walkers_prob + error_prob}')
+    final_states = {}
+    for key in walkers_prob.keys():
+        if walkers_prob.get(key) != 0:
+            final_states[key] = walkers_prob.get(key)
+    if verbose:
+        print(f'Number of {n_walkers} walkers states: {len(walkers)}')
+        print(f'Number of {n_walkers} walkers non-zero probability states: {len(final_states)}')
+    final_states['Error'] = error_prob
+    sites_list = []
+    sites_prob = []
+    for key in final_states.keys():
+        sites_list.append(key)
+    ordered = sorted(sites_list)
+    if verbose:
+        print(f'Ordered sites list: {ordered}')
+        print('='*149)
+    for i in ordered:
+        sites_prob.append(final_states.get(i))   
+    if verbose:
+        print(f'Ordered sites probabilities: {sites_prob}')
+    return sites_prob
+
 def find_likelyhood_strings(array):
     possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
     list_of_likelyhood = []
