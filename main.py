@@ -314,13 +314,11 @@ def full_circ_instance():
     final_vals = run.random_walk()
 
     #feed final_vals into Rob's cleanup function
-
     processed_vals = Clean_Results(final_vals, n_walker = 1)
-
     list_of_likelyhood = find_likelyhood_strings(processed_vals)
+    #get entropy from results
 
     #feed resulting array into Gavin's plotting object
-
     #do not take into account the last value for the plot - that's the Errors!
     PolarPlotmaker(processed_vals[:-1], labels = list_places,debug = False, background='black', tick_color='chartreuse', save_name='./assets/roseplot.png', dpi = 200)
     #this takes into
@@ -329,7 +327,7 @@ def full_circ_instance():
     #saves picture into assets/roseplot.png
 
     #feed into openai function
-    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, )
+    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, start)
     print(storyline)
 
 
