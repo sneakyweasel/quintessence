@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex Documentation"] 1675001071 "Documentation.aux" "Documentation.bbl" "Documentation" 1675001071
+["bibtex Documentation"] 1675002714 "Documentation.aux" "Documentation.bbl" "Documentation" 1675002718
   "/usr/local/texlive/2021/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "Documentation.aux" 1675001068 1784 55443b4ee7729acf9b4f9683cfb24a64 "pdflatex"
+  "Documentation.aux" 1675002717 1914 b8935f205b7bbe9773ff074d747f1a67 "pdflatex"
   "EntanglementinSpinChains.bib" 0 -1 0 ""
   (generated)
   "Documentation.bbl"
   "Documentation.blg"
-["pdflatex"] 1675001065 "/Users/gavinrockwood/Documents/Coding Projects/quintessence/Documentation/Documentation.tex" "Documentation.pdf" "Documentation" 1675001071
-  "/Users/gavinrockwood/Documents/Coding Projects/quintessence/Documentation/Documentation.tex" 1675001069 3157 07a1a9a2fa6858a22b92ff7daa600725 ""
+["pdflatex"] 1675002714 "/Users/gavinrockwood/Documents/Coding Projects/quintessence/Documentation/Documentation.tex" "Documentation.pdf" "Documentation" 1675002718
+  "/Users/gavinrockwood/Documents/Coding Projects/quintessence/Documentation/Documentation.tex" 1675002705 3913 61e76f7aefe1e3a70fe9844cc1828d0d ""
   "/usr/local/texlive/2021/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2021/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2021/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -267,11 +267,11 @@
   "/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1652470046 4555236 7162d3a1a211bcec30cb582ab9acad63 ""
   "/usr/local/texlive/2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1652470133 2828215 9b4f83d35ae10fa195bceb86cf752f09 ""
   "/usr/local/texlive/2021/texmf.cnf" 1616695596 577 4c1911a7228e554c6032256d3cf5567d ""
-  "Documentation.aux" 1675001068 1784 55443b4ee7729acf9b4f9683cfb24a64 "pdflatex"
+  "Documentation.aux" 1675002717 1914 b8935f205b7bbe9773ff074d747f1a67 "pdflatex"
   "Documentation.bbl" 0 -1 0 "bibtex Documentation"
-  "Documentation.out" 1675001068 184 ec8476ad45cdf2003be7d27e85c1ac1a "pdflatex"
-  "Documentation.tex" 1675001069 3157 07a1a9a2fa6858a22b92ff7daa600725 ""
-  "Documentation.toc" 1675001068 131 a68e683728bd29386c2fa7cc74c8fb5b "pdflatex"
+  "Documentation.out" 1675002717 404 932903a53f01d0e7cff950631ebbf624 "pdflatex"
+  "Documentation.tex" 1675002705 3913 61e76f7aefe1e3a70fe9844cc1828d0d ""
+  "Documentation.toc" 1675002717 220 ae9e28f0f7fafdd4b60eb50b89f1b3f3 "pdflatex"
   "Figures/Unitary_Gate_iQuHACK23.pdf" 1674998699 17669 caf50d61bf8d5845885031788b447b06 ""
   "MyMainPreamble.sty" 1662553995 6484 b51e931e6b2a7cf50f6e4dbbd2500696 ""
   (generated)

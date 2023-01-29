@@ -51,13 +51,17 @@
       \caption{The circular hopping lattice for 12 sites where $h_{i,i+1} = -J\sum\limits_{\alpha=\{x,y\}}\sigma_i^\alpha\sigma^\alpha_{i+1}$.}\label{fig:Lattice}
     \end{figure}
 
-    This model is implemented by the quantum circuit given in figure \ref{fig:Circuit}. The Hamiltonian is number conserving, meaning that in the evolution of our system, the states should stay in the single occupancy Hilbert space. However, errors in the computer can introduce contributions from different occupancy states. In terms of the story, we consider these errors as gaps in Mr Quanta's memory that he just cannot seem to fill.  
+    This model is implemented by the quantum circuit given in figure \ref{fig:Circuit}. The Hamiltonian is number conserving, meaning that in the evolution of our system, the states should stay in the single occupancy Hilbert space. However, errors in the computer can introduce contributions from different occupancy states. In terms of the story, we consider these errors as gaps in Mr Quanta's memory that he just cannot seem to fill. 
+
+    The starting location of the walker  (Mr Quanta) is determined by starting the system in the $\ket{0}$ state and applying $\sigma_x$ at the starting location to flip that qubit. 
     \begin{figure}[H]
       \centering
       \includegraphics[scale =  0.2]{Figures/Unitary_Gate_iQuHACK23.pdf}
       \caption{A single implementation of Trottterized Hamiltonian.}\label{fig:Circuit}
     \end{figure}
     
+  \section{Simulation vs Running on Hardware}
+    For the simulations of the circuit, we can run as many Trotter steps as we want for our story. This is just running multiple copies of the circuit given in figure \ref{fig:Circuit}. For the hardware, we ran into the issue of non-parallelizability of the IonQ machine. With the amount of gates we have, this causes the circuit depth to grow by $8\times\text{(number of qubits)}$ per Trotter step. In our two runs, we did one with one Trotter step and another with two. For both we did 1024 shots and got unusable results.  
       
 
   
