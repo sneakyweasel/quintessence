@@ -21,6 +21,9 @@ import requests
 
 openai.api_key = "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"
 
+
+openai.api_key = "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"
+
 # Load your API key from an environment variable or secret management service
 app = Flask(__name__)
 
