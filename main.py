@@ -253,7 +253,7 @@ def image_from_response(storyline):
 
 #@app.route('/api', methods = ['POST'])
 #@app.route('/')
-def full_circ_instance(verbose, sim_type, N_qubits):
+def full_circ_instance(verbose, sim_type, N_qubits, start, steps, activate_ai):
     # provider
     provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
 
@@ -313,9 +313,9 @@ def full_circ_instance(verbose, sim_type, N_qubits):
     for j in range(len(list_probs)):
         K_vals[j] = K_max*int(list_probs[j])/100.0
 
-    start = 0
+    #start = 4
     #start = data.get['start']
-    steps = 2
+    #steps = 3
     #steps = data.get['steps']
     J_val = np.pi/4 #set a default speed value
     circuit = CircuitSpec(start, steps, J_val, K_vals, backend)
@@ -343,23 +343,26 @@ def full_circ_instance(verbose, sim_type, N_qubits):
     #processed_vals
     #saves picture into haze-frontend/public/roseplot.png
 
-    #feed into openai function
-    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], active_sites[:-1], entropy_specifier, list_places[start])
-    print(storyline)
+    if activate_ai:
 
-    #clean storyline into 3 separated paragraphs
-    #feed into Dall-E API
+        #feed into openai function
+        storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], active_sites[:-1], entropy_specifier, list_places[start])
+        print(storyline)
 
-    image_from_response(storyline)
+        #clean storyline into 3 separated paragraphs
+        #feed into Dall-E API
+
+        image_from_response(storyline)
 
 
 if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12)
-
-    #do function
+    #false AI pipeline
+    full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12, start = 4, steps = 3, activate_ai=False)
+    #true AI pipeline    
+    #full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12, start = 4, steps = 3, activate_ai=True)
 
 
 
