@@ -40,6 +40,10 @@ You need to install those python packages:
 
 ## Example Result
 
+![rose](./assets/roseplot.png)
+
+Mr. Quanta awoke on the rooftop bar, feeling a bit disoriented. He had no idea how he had gotten there, but he had a vague recollection of a concert venue. He remembered the music, the lights, and the energy of the crowd. He had been having a great time, but he couldn't remember how he had ended up on the rooftop bar.
+
 ![generated Image](./assets/pic0.png)
 
 ## Team members
