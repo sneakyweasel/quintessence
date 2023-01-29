@@ -6,36 +6,69 @@
         </div>
     </div>
 
-    <div v-for="i in 10" :key="'row' + i">
-        <div class="row" :key="i">
-            <div class="col-3"></div>
-            <div class="col">
-                <input type="text" class="form-control" :value="get_random_place()" :key="'place' + i">
+    <form @submit.prevent="submit">
+        <div v-for="i in 12" :key="'row' + i">
+            <div class="row" :key="i">
+                <div class="col-3"></div>
+                <div class="col">
+                    <input :id="'place' + i" type="text" class="form-control" :value="get_random_place()"
+                        :key="'place' + i">
+                </div>
+                <div class="col">
+                    <input :id="'prob' + i" type="range" class="form-range" value="0" min="0" max="100" step="10"
+                        :key="'prob' + i">
+                </div>
+                <div class="col-3"></div>
             </div>
-            <div class="col">
-                <input type="range" class="form-range" min="0" max="100" step="10" :key="'prob' + i">
-            </div>
-            <div class="col-3"></div>
         </div>
-    </div>
-    <hr>
+        <hr>
+        <hr>
+        <button class="btn btn-outline-dark">
+            Remember
+        </button>
+    </form>
 
-
-    <hr>
-    <button class="btn btn-outline-dark">
-        Remember
-    </button>
+    <div class="card-body">Returned bit string: {{ bitString }}</div>
 
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     props: {
+    },
+    data() {
+        return {
+            bitString: null
+        };
     },
     methods: {
         get_random_place: function () {
             return places[Math.floor(Math.random() * places.length)];
         },
+        submit: function () {
+            // Simple POST request with a JSON body using axios
+            let data = {
+                places: [],
+                probs: []
+            };
+            for (let i = 1; i < 10; i++) {
+                const place = document.getElementById('place' + i).value;
+                const prob = document.getElementById('prob' + i).value;
+                data.places.push(place);
+                data.probs.push(prob);
+            }
+            console.log(data);
+
+            axios.post('/api', data)
+                .then(res => {
+                    this.bitString = res.data.bitString;
+                })
+                .catch(err => {
+                    alert('something went wrong! ' + err);
+                })
+        }
     }
 }
 
