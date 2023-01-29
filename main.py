@@ -311,7 +311,7 @@ def full_circ_instance():
 
     #feed final_vals into Rob's cleanup function
 
-    #processed_vals = 
+    processed_vals = Clean_Results(final_vals, n_walker = 1)
 
     list_of_likelyhood = find_likelyhood_strings(processed_vals)
 
@@ -327,8 +327,6 @@ def full_circ_instance():
     #feed into openai function
     #create json ["story"] of final GPT3 result
     #send that back to the API
-
-
 
     return final_vals
 
