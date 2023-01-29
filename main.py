@@ -12,6 +12,13 @@ import matplotlib.colors as colors
 import matplotlib.colorbar as colorbar
 from scipy.stats import norm
 import openai
+import numpy as np
+import matplotlib.pylab as plt
+from matplotlib import patheffects
+#plt.rcParams['path.effects'] = [patheffects.withStroke(linewidth=4, foreground='b')]
+from PIL import Image, ImageFilter
+
+openai.api_key = "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"
 
 # Load your API key from an environment variable or secret management service
 app = Flask(__name__)
@@ -175,31 +182,62 @@ def wording_entropy(entropy_val, max_val):
     return possibilities[ind]
 
 
-def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'limegreen', linelength = 10, pad = 15, save_name = None):
+def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'chartreuse', linelength = 10, pad = 8, save_name = None, show = False, has_error = True, offwhite_cutoff=170, labelsize = 8):
+
     labels_type = 'string'
-    N = len(probabilities)
-    angles = np.linspace(0,2*np.pi-2*np.pi/N,N)
     
+    if has_error:
+        if probabilities[-1]==0:
+            probabilities = probabilities[:-1]
+            has_error = False
+            
+    n_qubits = len(probabilities)
+    
+    if has_error:
+        n_qubits+=-1
+
+    n_labels = n_qubits
+    
+    if has_error:
+        n_labels+=1
+    
+    
+    angles = np.linspace(0,2*np.pi-2*np.pi/(n_labels-1),n_labels)
     angles = np.concatenate((angles,[angles[0]]))
     probabilities = np.concatenate((probabilities,[probabilities[0]]))
 
     if debug:
         print(f'Angles (length {len(angles)}): {np.round(angles,4)}')
-        print(f'Probabilies (length {len(probabilities)}): {np.round(probabilities,4)}')
+        print(f'Probabilities (length {len(probabilities)}): {np.round(probabilities,4)}')
+        print(f'Has Errors: {has_error}')
+
 
     
     if labels is not None:
-        if len(labels)!=N:
-            labels = np.arange(0,N)
+        if len(labels)>=n_qubits:
+            labels = labels[:n_qubits]
+        if len(labels)!=n_qubits:
+            labels = np.arange(0,n_qubits)
+            labels = labels.tolist()
+            
+            if has_error:
+                labels += ["Can't Remember"]
             labels_type = 'int'
+            labels_modified =  labels
         
 
     if labels is None:
-        labels = np.arange(0,N)
+        labels = np.arange(0,n_qubits)
+        labels = labels.tolist()
+        if has_error:
+            labels += ["Can't Remember"]
         labels_type = 'int'
+        labels_modified =  labels
 
 
     if labels_type == 'string':
+        if has_error:
+            labels += ["Can't Remember"]
         labels_modified = []
         for label in labels:
             new_label = ""
@@ -207,7 +245,7 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
             first_step = True
             for i, letter in enumerate(label):
                 if lines == 3:
-                    new_label = new_label[:-3]
+                    new_label = new_label[:-4]
                     new_label += '...'
                     break
                 if i % linelength == 0 and not first_step:
@@ -219,8 +257,10 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
                 first_step = False
             if new_label[:2] == "A " or new_label[:2] == "a ":
                 new_label=new_label[2:]
-            labels_modified.append(new_label)     
+            labels_modified.append(new_label)
 
+
+    plt.xkcd(scale=2, length=0)
     plt.figure(figsize=figsize, dpi = dpi)
     
     ax = plt.subplot(111, polar=True)
@@ -240,27 +280,68 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
 
     for i in range(len(probabilities)-1):
         ax.fill_between([angles[i], angles[i+1]], [probabilities[i], probabilities[i+1]], color=cmap(normalize(z[i])))
+    
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels_modified, color = tick_color)
-    ax.xaxis.set_tick_params(grid_linewidth = 1, grid_color = tick_color, pad = pad)
+
+    color_list = [tick_color]*(n_labels)
+    if has_error:
+        color_list[-1] = 'red'
+    for xtick, color in zip(ax.get_xticklabels(), color_list):
+        xtick.set_color(color)
+    
+    ax.set_xticklabels(labels_modified)
+    
+    #ax.set_xticklabels(labels_modified, color = tick_color)
+
+    ax.xaxis.set_tick_params(grid_linewidth = 1, grid_color = tick_color, pad = pad, labelsize = 8)
+
+    ax.set_axisbelow('True')
     
     ax.spines['polar'].set_color(tick_color)
     
     ax.set_ylim(0,max(probabilities))
 
-    ax.set_facecolor(background)
+    #ax.set_facecolor(background)
 
 
     ax.set_theta_zero_location("N")
     ax.set_theta_direction(-1)
     # Show the graph
+
+    plt.figtext(0.5,-0.1,f'Enropy of what you remember: {round(Entropy(probabilities[:-2]),2)}\nResidual: {round(Entropy([probabilities[-2]]),2)}', color=tick_color, horizontalalignment='center')
+
     plt.tight_layout()
     
     if type(save_name)==str:
-        plt.savefig(save_name, transparent = True)
-    #plt.show()
+        plt.savefig(save_name+'.png', transparent = True,bbox_inches = "tight")
     
+    if show:
+        plt.show()
 
+    if type(save_name)==str:
+        img = Image.open(save_name+'.png')
+        img = img.convert("RGBA")
+    
+        pixdata = img.load()
+
+        width, height = img.size
+        for y in range(height):
+            for x in range(width):
+                dat =  pixdata[x, y]
+                if dat[-1]!=0:
+                    dat = np.array(dat[:-1])
+                    dat_tf = dat>offwhite_cutoff
+                    if  dat_tf[0] and dat_tf[1] and dat_tf[2]:
+                        pixdata[x, y] = (0,0,0,0)
+
+        img.save(save_name+'.png', "PNG")
+    
+def Entropy(probabilities):
+    if type(probabilities) is list:
+        probabilities = np.array(probabilities)
+    s = -probabilities*np.log(probabilities)
+    s[np.isnan(s)] = 0
+    return np.sum(s)
 
 def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_state):
     #entropy_specifier = "chaotic"
@@ -287,7 +368,7 @@ def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_st
 
 #@app.route('/api', methods = ['POST'])
 #@app.route('/')
-def full_circ_instance():
+def full_circ_instance(verbose):
     # provider
     provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
     provider.backends()
@@ -323,15 +404,20 @@ def full_circ_instance():
     circuit = CircuitSpec(start, steps, J_val, K_vals, backend)
     final_vals = circuit.random_walk()
 
+    if verbose==True:
+        print("\n")
+        print(final_vals)
+        print("\n")
+
     #feed final_vals into Rob's cleanup function
     processed_vals = Clean_Results(final_vals, n_walkers = 1)
     list_of_likelyhood = find_likelyhood_strings(processed_vals)
     #get entropy from results
-    entropy_specifier = wording_entropy(0.5, max_val = np.log(len(list_probs)))
+    entropy_specifier = wording_entropy(Entropy(processed_vals), max_val = np.log(len(list_probs)))
 
     #feed resulting array into Gavin's plotting object
     #do not take into account the last value for the plot - that's the Errors!
-    PolarPlotmaker(processed_vals[:-1], labels = list_places,debug = False, background='black', tick_color='chartreuse', save_name='./assets/roseplot.png', dpi = 200)
+    PolarPlotmaker(processed_vals, labels=list_places, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'chartreuse', linelength = 10, pad = 8, save_name = './assets/roseplot', show = False, has_error = True, offwhite_cutoff=170, labelsize = 8)
     #this takes into
     #list_places
     #processed_vals
@@ -346,7 +432,7 @@ if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    full_circ_instance()
+    full_circ_instance(True)
 
     #do function
 
