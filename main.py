@@ -197,10 +197,9 @@ def wording_entropy(entropy_val, max_val):
 def gpt_prompt_and_eval(input_places, input_probs, tags, entropy_specifier, initial_state):
     #entropy_specifier = "chaotic"
     #initial_state = "gutter"
-    prompt_init = "Write a fiction story about Mr. Quanta's past journey in 3 steps. "
-    prompt_init += "He only remembers a few things. "
+    prompt_init = "Mr. Quanta cannot remember how he got here. Tell the story of him trying to remember how he got here in 3 steps and be descriptive. "
+    prompt_init += "He only remembers a few things, and considers each possible place one at a time. Use grandiose language. Embelish everything and paint a picture with words. Make the descriptions drip with imagery. "
     prompt_init += "He had a " + entropy_specifier + " time before awakening at the " + initial_state + ", and before that"
-
 
     # Probabilities array as text
     #input_places = ["bar", "zoo"]
