@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.colorbar as colorbar
 from scipy.stats import norm
-#import openai
+import openai
 
 # Load your API key from an environment variable or secret management service
 app = Flask(__name__)
@@ -268,7 +268,7 @@ def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_st
     #initial_state = "gutter"
     prompt_init = "Write a fiction story about Mr. Quanta's past journey in 3 steps. "
     prompt_init += "He only remembers a few things. "
-    prompt_init += "He had a " + entropy_specifier + " time before awakening in the " + initial_state + ", before that"
+    prompt_init += "He had a " + entropy_specifier + " time before awakening at the " + initial_state + ", and before that"
 
 
     # Probabilities array as text
@@ -283,6 +283,7 @@ def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_st
     response = openai.Completion.create(model="text-davinci-003", prompt=prompt_init, temperature=0, max_tokens=400)
 
     return response.choices[0].text
+
 
 
 @app.route('/api', methods = ['POST'])
@@ -306,21 +307,19 @@ def full_circ_instance():
 
     start = 0
     #start = data.get['start']
-    steps = 30
+    steps = 2
     #steps = data.get['steps']
     J_val = np.pi/4 #set a default speed value
     circuit = CircuitSpec(start, steps, J_val, K_vals, backend)
     final_vals = circuit.random_walk()
 
     #feed final_vals into Rob's cleanup function
-
     processed_vals = Clean_Results(final_vals, n_walker = 1)
 
     list_of_likelyhood = find_likelyhood_strings(processed_vals[:-1])
     entropy_specifier = wording_entropy(entropy_val, max_val = np.log(12))
 
     #feed resulting array into Gavin's plotting object
-
     #do not take into account the last value for the plot - that's the Errors!
     PolarPlotmaker(processed_vals[:-1], labels = list_places,debug = False, background='black', tick_color='chartreuse', save_name='./assets/roseplot.png', dpi = 200)
     #this takes into
@@ -329,9 +328,7 @@ def full_circ_instance():
     #saves picture into assets/roseplot.png
 
     #feed into openai function
-    #create json ["story"] of final GPT3 result
-    #send that back to the API
-    storyline = gpt_prompt_and_eval(list_places, processed_vals[:-1], entropy_specifier)
+    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, start)
     print(storyline)
 
 
