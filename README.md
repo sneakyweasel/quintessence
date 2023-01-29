@@ -20,12 +20,13 @@ We will judge your entry based on both (1) how quantum it is and (2) how cool it
 
 ## Quantum haze
 
-We are using a number preserving [quantum walk search algorithm](https://qiskit.org/textbook/ch-algorithms/quantum-walk-search-algorithm.html) running on IonQ to output results of a graph traversal algorithm which represents the drunken journey of our main character and how he tries to figure out what happened to him the previous night.
+We are using a number preserving [quantum walk search algorithm](https://qiskit.org/textbook/ch-algorithms/quantum-walk-search-algorithm.html) running on IonQ (other backends can be included) to output results of a graph traversal algorithm which represents the scattered journey of our main character, Mr. Quanta, and how he tries to figure out what happened to him during his incoherent rambling through QuantaLand.
 This output will be fed back into a transformers AI model and then to a stable diffusion AI model to generate a exciting dynamic storyline with associated graphics.
+For a more in depth discussion of the applied circuit, see the following [file](./haze-frontend/public/Documentation.pdf).
 
 ## Setup
 
-You'll need to provide your API keys as env variables at the beginning on main.py
+You'll need to provide your own API keys as env variables at the beginning on main.py
 
 - provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
 - openai.api_key = "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"

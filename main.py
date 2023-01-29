@@ -4,7 +4,6 @@ from qiskit.circuit import Parameter
 from qiskit_ionq import IonQProvider
 import numpy as np
 from flask import Flask, request
-import json
 import os
 import matplotlib.pylab as plt
 import matplotlib.cm as cm
@@ -19,11 +18,10 @@ from matplotlib import patheffects
 from PIL import Image, ImageFilter
 import requests
 from Plotter import Entropy, PolarPlotmaker
-import json
-from Plotter import Entropy, PolarPlotmaker
-import json
+#import json
+import time
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 
 # Load your API key from an environment variable or secret management service
@@ -237,11 +235,13 @@ def image_from_response(storyline):
         #print(processed[step])
         img = openai.Image.create(prompt=pre_prompt + processed[step], n=1,size="1024x1024")
         img_url = img["data"][0]["url"]
+        print(img_url)
         img_urls.append(img_url)
         #print("Image " + step + " url:" + img_url)
         img_data = requests.get(img_url).content
         with open('./haze-frontend/public/pic'+str(step)+'.png', 'wb') as handler:
             handler.write(img_data)
+        time.sleep(5)
 
 #@app.route('/api', methods = ['POST'])
 #@app.route('/')
@@ -297,7 +297,9 @@ def full_circ_instance(verbose, sim_type, N_qubits, start, steps, activate_ai):
     "A rooftop yoga class"]
 
     list_places = np.random.choice(all_places, N_qubits, replace = False)
-    list_probs = np.random.rand(N_qubits)
+    #list_probs = np.random.rand(N_qubits)
+    list_probs = np.zeros(N_qubits)
+    list_probs[np.random.randint(N_qubits)] = np.pi/4
 
     K_max = np.pi/4
     K_vals = np.zeros(len(list_probs))
@@ -341,17 +343,19 @@ def full_circ_instance(verbose, sim_type, N_qubits, start, steps, activate_ai):
         storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], active_sites[:-1], entropy_specifier, list_places[start])
         print(storyline)
 
+        time.sleep(5)
+
         #clean storyline into 3 separated paragraphs
         #feed into Dall-E API
 
-        image_from_response(storyline)
+        #image_from_response(storyline)
 
 
 if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    full_circ_instance(verbose = True)
+    full_circ_instance(verbose = True, sim_type='ideal', N_qubits=12, start = 3, steps = 2, activate_ai=True)
 
     #do function
 
