@@ -6,6 +6,11 @@ import numpy as np
 from flask import Flask, request
 import json
 import os
+import matplotlib.pylab as plt
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import matplotlib.colorbar as colorbar
+from scipy.stats import norm
 #import openai
 
 # Load your API key from an environment variable or secret management service
@@ -85,7 +90,108 @@ def find_likelyhood_strings(array):
         list_of_likelyhood.append(possibilities[ind])
     return list_of_likelyhood
 
-def wording_entropy(entropy_val):
+def wording_entropy(entropy_val, max_val):
+    possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
+    normed_entropy = entropy_val/max_val
+    if 0 <= normed_entropy < 0.1:
+        ind = 0
+    elif 0.1 <= normed_entropy < 0.4:
+        ind = 1
+    elif 0.4 <= normed_entropy < 0.6:
+        ind = 2
+    elif 0.6 <= normed_entropy < 0.9:
+        ind = 3        
+    elif 0.9 <= normed_entropy < 1.0:
+        ind = 4
+
+    return possibilities[ind]
+
+
+def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'limegreen', linelength = 10, pad = 15, save_name = None):
+    labels_type = 'string'
+    N = len(probabilities)
+    angles = np.linspace(0,2*np.pi-2*np.pi/N,N)
+    
+    angles = np.concatenate((angles,[angles[0]]))
+    probabilities = np.concatenate((probabilities,[probabilities[0]]))
+
+    if debug:
+        print(f'Angles (length {len(angles)}): {np.round(angles,4)}')
+        print(f'Probabilies (length {len(probabilities)}): {np.round(probabilities,4)}')
+
+    
+    if labels is not None:
+        if len(labels)!=N:
+            labels = np.arange(0,N)
+            labels_type = 'int'
+        
+
+    if labels is None:
+        labels = np.arange(0,N)
+        labels_type = 'int'
+
+
+    if labels_type == 'string':
+        labels_modified = []
+        for label in labels:
+            new_label = ""
+            lines = 1
+            first_step = True
+            for i, letter in enumerate(label):
+                if lines == 3:
+                    new_label = new_label[:-3]
+                    new_label += '...'
+                    break
+                if i % linelength == 0 and not first_step:
+                    lines+=1
+                    if new_label[-1] != ' ':
+                        new_label +='-'
+                    new_label += '\n'
+                new_label += letter
+                first_step = False
+            if new_label[:2] == "A " or new_label[:2] == "a ":
+                new_label=new_label[2:]
+            labels_modified.append(new_label)     
+
+    plt.figure(figsize=figsize, dpi = dpi)
+    
+    ax = plt.subplot(111, polar=True)
+
+    z = angles
+    normalize = colors.Normalize(vmin=z.min(), vmax=z.max())
+
+    cmap = colors.LinearSegmentedColormap.from_list("", ["aqua","mediumslateblue","orchid",'magenta', 'mediumorchid', 'mediumpurple','dodgerblue']*2)
+
+    ax.plot(angles, probabilities, linewidth=1, linestyle='solid')
+    
+    # Fill area
+    #ax.fill(angles, values, 'b', alpha=0.1)
+
+    ax.set_yticklabels([])
+    ax.get_yaxis().set_ticks([])
+
+    for i in range(len(probabilities)-1):
+        ax.fill_between([angles[i], angles[i+1]], [probabilities[i], probabilities[i+1]], color=cmap(normalize(z[i])))
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels_modified, color = tick_color)
+    ax.xaxis.set_tick_params(grid_linewidth = 1, grid_color = tick_color, pad = pad)
+    
+    ax.spines['polar'].set_color(tick_color)
+    
+    ax.set_ylim(0,max(probabilities))
+
+    ax.set_facecolor(background)
+
+
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
+    # Show the graph
+    plt.tight_layout()
+    
+    if type(save_name)==str:
+        plt.savefig(save_name, transparent = True)
+    #plt.show()
+    
 
 
 def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier):
@@ -141,9 +247,12 @@ def full_circ_instance():
     list_of_likelyhood = find_likelyhood_strings(processed_vals)
 
     #feed resulting array into Gavin's plotting object
+
+    #do not take into account the last value for the plot - that's the Errors!
+    PolarPlotmaker(processed_vals[:-1], labels = list_places,debug = False, background='black', tick_color='chartreuse', save_name='./assets/roseplot.png', dpi = 200)
     #this takes into
     #list_places
-    #processed_vales
+    #processed_vals
     #saves picture into assets/roseplot.png
 
     #feed into openai function
