@@ -18,7 +18,6 @@ app = Flask(__name__)
 
 # this will be the url
 
-
 class CircuitSpec:
     def __init__(self, start, steps, speed, likelyhood, backend):
         self.start = start  # starting site
@@ -266,6 +265,7 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
 def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_state):
     #entropy_specifier = "chaotic"
     #initial_state = "gutter"
+    openai.api_key = "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"
     prompt_init = "Write a fiction story about Mr. Quanta's past journey in 3 steps. "
     prompt_init += "He only remembers a few things. "
     prompt_init += "He had a " + entropy_specifier + " time before awakening at the " + initial_state + ", and before that"
@@ -327,6 +327,7 @@ def full_circ_instance():
     #saves picture into assets/roseplot.png
 
     #feed into openai function
+    entropy_specifier = 0.5
     storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, start)
     print(storyline)
 
