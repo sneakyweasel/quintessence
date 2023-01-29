@@ -159,7 +159,7 @@ def find_likelyhood_strings(array):
     return list_of_likelyhood
 
 def wording_entropy(entropy_val, max_val):
-    possibilities = ["certainly did not go", "unlikely went ", "may have gone ", "likely went ", "certainly went "]
+    possibilities = ["uneventful", "boring", "regular", "exciting", "chaotic"]
     normed_entropy = entropy_val/max_val
     if 0 <= normed_entropy < 0.1:
         ind = 0
@@ -310,13 +310,14 @@ def full_circ_instance():
     steps = 2
     #steps = data.get['steps']
     J_val = np.pi/4 #set a default speed value
-    run = CircuitSpec(start, steps, J_val, K_vals, backend)
-    final_vals = run.random_walk()
+    circuit = CircuitSpec(start, steps, J_val, K_vals, backend)
+    final_vals = circuit.random_walk()
 
     #feed final_vals into Rob's cleanup function
     processed_vals = Clean_Results(final_vals, n_walker = 1)
-    list_of_likelyhood = find_likelyhood_strings(processed_vals)
-    #get entropy from results
+
+    list_of_likelyhood = find_likelyhood_strings(processed_vals[:-1])
+    entropy_specifier = wording_entropy(entropy_val, max_val = np.log(12))
 
     #feed resulting array into Gavin's plotting object
     #do not take into account the last value for the plot - that's the Errors!
