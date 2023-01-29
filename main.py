@@ -13,6 +13,9 @@ import matplotlib.colorbar as colorbar
 from scipy.stats import norm
 import openai
 
+
+openai.api_key = "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"
+
 # Load your API key from an environment variable or secret management service
 app = Flask(__name__)
 
