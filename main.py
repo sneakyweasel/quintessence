@@ -248,7 +248,7 @@ def full_circ_instance():
     processed_vals = f(final_vals) 
 
     list_of_likelyhood = find_likelyhood_strings(processed_vals[:-1])
-    entropy_specifier = wording_entropy(entropy_val, max_val)
+    entropy_specifier = wording_entropy(entropy_val, max_val = np.log(12))
 
     #feed resulting array into Gavin's plotting object
 
