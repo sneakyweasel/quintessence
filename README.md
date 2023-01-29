@@ -24,6 +24,14 @@ We are using a number preserving [quantum walk search algorithm](https://qiskit.
 This output will be fed back into a transformers AI model and then to a stable diffusion AI model to generate a exciting dynamic storyline with associated graphics.
 For a more in depth discussion of the applied circuit, see the following [file](./haze-frontend/public/Documentation.pdf).
 
+## Example Result
+
+![rose](./assets/roseplot.png)
+
+Mr. Quanta awoke on the rooftop bar, feeling a bit disoriented. He had no idea how he had gotten there, but he had a vague recollection of a concert venue. He remembered the music, the lights, and the energy of the crowd. He had been having a great time, but he couldn't remember how he had ended up on the rooftop bar.
+
+![generated Image](./assets/pic0.png)
+
 ## Setup
 
 You'll need to provide your own API keys as env variables at the beginning on main.py
@@ -39,13 +47,13 @@ You need to install those python packages:
 - flask-cors
 - openai
 
-## Example Result
+## Run
 
-![rose](./assets/roseplot.png)
+To run "Quantum Haze" you need to run the following command:
 
-Mr. Quanta awoke on the rooftop bar, feeling a bit disoriented. He had no idea how he had gotten there, but he had a vague recollection of a concert venue. He remembered the music, the lights, and the energy of the crowd. He had been having a great time, but he couldn't remember how he had ended up on the rooftop bar.
-
-![generated Image](./assets/pic0.png)
+```bash
+python main.py
+```
 
 ## Team members
 
