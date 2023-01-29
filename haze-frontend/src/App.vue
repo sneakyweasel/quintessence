@@ -4,17 +4,20 @@
         <h2 id="subtitle">Quintessence - MIT iQuHACK 2023</h2>
         <img id="logo" alt="Vue logo" src="./assets/logo2.png" width="400">
 
-        <HazeConfig />
+        <!-- <HazeConfig /> -->
+        <HazeResults />
     </div>
 </template>
 
 <script>
-import HazeConfig from './components/HazeConfig.vue'
+// import HazeConfig from './components/HazeConfig.vue'
+import HazeResults from './components/HazeResults.vue'
 
 export default {
     name: 'App',
     components: {
-        HazeConfig
+        // HazeConfig
+        HazeResults
     }
 }
 </script>

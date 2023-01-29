@@ -156,7 +156,7 @@ def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, backg
         error_entropy = np.round(Entropy([error_prob]),2)
     if not has_error:
         probabilities_for_entropy = probabilities[:-1]
-    plt.figtext(0.5,-0.1,f'Enropy of what you remember: {round(Entropy(probabilities_for_entropy),2)}\nResidual: {error_entropy}', color=tick_color, horizontalalignment='center')
+    plt.figtext(0.5,-0.1,f'Entropy of what you remember: {round(Entropy(probabilities_for_entropy),2)}\nResidual: {error_entropy}', color=tick_color, horizontalalignment='center')
 
     plt.tight_layout()
     
