@@ -25,15 +25,22 @@ This output will be fed back into a transformers AI model and then to a stable d
 
 ## Setup
 
-### Python backend
+You'll need to provide your API keys as env variables at the beginning on main.py
 
-- You'll need to provide your API keys as env variables.
-- Run python webserver.
+- provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
+- openai.api_key = "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"
 
-### Vue Frontend
+You need to install those python packages:
 
-- yarn install
-- yarn serve
+- qiskit
+- qiskit-ionq
+- flask
+- flask-cors
+- openai
+
+## Example Result
+
+![generated Image](./assets/pic0.png)
 
 ## Team members
 
