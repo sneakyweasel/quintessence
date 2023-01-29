@@ -18,8 +18,10 @@ from matplotlib import patheffects
 #plt.rcParams['path.effects'] = [patheffects.withStroke(linewidth=4, foreground='b')]
 from PIL import Image, ImageFilter
 import requests
+from Plotter import Entropy, PolarPlotmaker
+import json
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 
 # Load your API key from an environment variable or secret management service
@@ -84,8 +86,10 @@ def Clean_Results(counts, n_walkers, verbose = False):
     if verbose:
         print(f'Number of possible end states: {len(counts)}')
     shots = 0
+    length_qubits = 0
     for key in counts.keys():
         shots += counts.get(key)
+        length_qubits = len(key)
     walkers = {}
     extras = {}
     for key in counts.keys():
@@ -137,6 +141,7 @@ def Clean_Results(counts, n_walkers, verbose = False):
     final_states['Error'] = error_prob
     sites_list = []
     sites_prob = []
+    active_sites = []
     for key in final_states.keys():
         sites_list.append(key)
     ordered = sorted(sites_list)
@@ -145,9 +150,17 @@ def Clean_Results(counts, n_walkers, verbose = False):
         print('='*149)
     for i in ordered:
         sites_prob.append(final_states.get(i))   
+
+    site = '1'
+    #print(len(sites_list))
+    active_sites = []
+    for i in range(len(sites_list)):
+        #print(np.abs(sites_list[i].rfind(site)-22))
+        active_sites.append(np.abs(sites_list[i].rfind(site)-length_qubits))
+        
     if verbose:
         print(f'Ordered sites probabilities: {sites_prob}')
-    return sites_prob
+    return sites_prob, active_sites
 
 def find_likelyhood_strings(array):
     possibilities = [0, "may have gone ",  "likely went "]
@@ -181,188 +194,26 @@ def wording_entropy(entropy_val, max_val):
     return possibilities[ind]
 
 
-def PolarPlotmaker(probabilities, labels=None, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'chartreuse', linelength = 10, pad = 8, save_name = None, show = False, has_error = True, offwhite_cutoff=170, labelsize = 8):
-
-    labels_type = 'string'
-    
-    if has_error:
-        if probabilities[-1]==0:
-            probabilities = probabilities[:-1]
-            has_error = False
-            
-    n_qubits = len(probabilities)
-    
-    if has_error:
-        n_qubits+=-1
-
-    n_labels = n_qubits
-    
-    if has_error:
-        n_labels+=1
-    
-    
-    angles = np.linspace(0,2*np.pi-2*np.pi/(n_labels-1),n_labels)
-    angles = np.concatenate((angles,[angles[0]]))
-    probabilities = np.concatenate((probabilities,[probabilities[0]]))
-
-    if debug:
-        print(f'Angles (length {len(angles)}): {np.round(angles,4)}')
-        print(f'Probabilities (length {len(probabilities)}): {np.round(probabilities,4)}')
-        print(f'Has Errors: {has_error}')
-
-
-    
-    if labels is not None:
-        if len(labels)>=n_qubits:
-            labels = labels[:n_qubits]
-        if len(labels)!=n_qubits:
-            labels = np.arange(0,n_qubits)
-            labels = labels.tolist()
-            
-            if has_error:
-                labels += ["Can't Remember"]
-            labels_type = 'int'
-            labels_modified =  labels
-        
-
-    if labels is None:
-        labels = np.arange(0,n_qubits)
-        labels = labels.tolist()
-        if has_error:
-            labels += ["Can't Remember"]
-        labels_type = 'int'
-        labels_modified =  labels
-
-
-    if labels_type == 'string':
-        if has_error:
-            labels += ["Can't Remember"]
-        labels_modified = []
-        for label in labels:
-            new_label = ""
-            lines = 1
-            first_step = True
-            for i, letter in enumerate(label):
-                if lines == 3:
-                    new_label = new_label[:-4]
-                    new_label += '...'
-                    break
-                if i % linelength == 0 and not first_step:
-                    lines+=1
-                    if new_label[-1] != ' ':
-                        new_label +='-'
-                    new_label += '\n'
-                new_label += letter
-                first_step = False
-            if new_label[:2] == "A " or new_label[:2] == "a ":
-                new_label=new_label[2:]
-            labels_modified.append(new_label)
-
-
-    plt.xkcd(scale=2, length=0)
-    plt.figure(figsize=figsize, dpi = dpi)
-    
-    ax = plt.subplot(111, polar=True)
-
-    z = angles
-    normalize = colors.Normalize(vmin=z.min(), vmax=z.max())
-
-    cmap = colors.LinearSegmentedColormap.from_list("", ["aqua","mediumslateblue","orchid",'magenta', 'mediumorchid', 'mediumpurple','dodgerblue']*2)
-
-    ax.plot(angles, probabilities, linewidth=1, linestyle='solid')
-    
-    # Fill area
-    #ax.fill(angles, values, 'b', alpha=0.1)
-
-    ax.set_yticklabels([])
-    ax.get_yaxis().set_ticks([])
-
-    for i in range(len(probabilities)-1):
-        ax.fill_between([angles[i], angles[i+1]], [probabilities[i], probabilities[i+1]], color=cmap(normalize(z[i])))
-    
-    ax.set_xticks(angles[:-1])
-
-    color_list = [tick_color]*(n_labels)
-    if has_error:
-        color_list[-1] = 'red'
-    for xtick, color in zip(ax.get_xticklabels(), color_list):
-        xtick.set_color(color)
-    
-    ax.set_xticklabels(labels_modified)
-    
-    #ax.set_xticklabels(labels_modified, color = tick_color)
-
-    ax.xaxis.set_tick_params(grid_linewidth = 1, grid_color = tick_color, pad = pad, labelsize = 8)
-
-    ax.set_axisbelow('True')
-    
-    ax.spines['polar'].set_color(tick_color)
-    
-    ax.set_ylim(0,max(probabilities))
-
-    #ax.set_facecolor(background)
-
-
-    ax.set_theta_zero_location("N")
-    ax.set_theta_direction(-1)
-    # Show the graph
-
-    plt.figtext(0.5,-0.1,f'Enropy of what you remember: {round(Entropy(probabilities[:-2]),2)}\nResidual: {round(Entropy([probabilities[-2]]),2)}', color=tick_color, horizontalalignment='center')
-
-    plt.tight_layout()
-    
-    if type(save_name)==str:
-        plt.savefig(save_name+'.png', transparent = True,bbox_inches = "tight")
-    
-    if show:
-        plt.show()
-
-    if type(save_name)==str:
-        img = Image.open(save_name+'.png')
-        img = img.convert("RGBA")
-    
-        pixdata = img.load()
-
-        width, height = img.size
-        for y in range(height):
-            for x in range(width):
-                dat =  pixdata[x, y]
-                if dat[-1]!=0:
-                    dat = np.array(dat[:-1])
-                    dat_tf = dat>offwhite_cutoff
-                    if  dat_tf[0] and dat_tf[1] and dat_tf[2]:
-                        pixdata[x, y] = (0,0,0,0)
-
-        img.save(save_name+'.png', "PNG")
-    
-def Entropy(probabilities):
-    if type(probabilities) is list:
-        probabilities = np.array(probabilities)
-    s = -probabilities*np.log(probabilities)
-    s[np.isnan(s)] = 0
-    return np.sum(s)
-
-def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_state):
+def gpt_prompt_and_eval(input_places, input_probs, tags, entropy_specifier, initial_state):
     #entropy_specifier = "chaotic"
     #initial_state = "gutter"
-    prompt_init = "Write a fiction story about Mr. Quanta's past journey in 3 steps. "
-    prompt_init += "He only remembers a few things. "
+    prompt_init = "Mr. Quanta cannot remember how he got here. Tell the story of him trying to remember how he got here in 3 steps and be descriptive. "
+    prompt_init += "He only remembers a few things, and considers each possible place one at a time. Use grandiose language. Embelish everything and paint a picture with words. Make the descriptions drip with imagery. "
     prompt_init += "He had a " + entropy_specifier + " time before awakening at the " + initial_state + ", and before that"
-
 
     # Probabilities array as text
     #input_places = ["bar", "zoo"]
     #input_strings = ["unlikely", "likely"]
-    lvals = len(input_places)
+    lvals = len(input_probs)
     for i in range(lvals):
         if input_probs[i] != 0:
-            prompt_init += ", he " + input_probs[i] + " went to the " + input_places[i]
+            prompt_init += ", he " + input_probs[i] + " went to the " + input_places[tags[i]]
 
     prompt_init += "."
 
     response = openai.Completion.create(model="text-davinci-003", prompt=prompt_init, temperature=0, max_tokens=400)
 
-    f = open("./assets/response.txt", "a")
+    f = open("./haze-frontend/public/response.txt", "a")
     f.write(response.choices[0].text)
     f.close()
 
@@ -379,22 +230,40 @@ def image_from_response(storyline):
 
     pre_prompt = "Digital art in the style of retrowave."
 
+    img_urls = []
     for step in range(len(processed)):
         #print(processed[step])
         img = openai.Image.create(prompt=pre_prompt + processed[step], n=1,size="1024x1024")
         img_url = img["data"][0]["url"]
+        img_urls.append(img_url)
         #print("Image " + step + " url:" + img_url)
         img_data = requests.get(img_url).content
-        with open('./assets/pic'+str(step)+'.png', 'wb') as handler:
+        with open('./haze-frontend/public/pic'+str(step)+'.png', 'wb') as handler:
             handler.write(img_data)
+
+    #save the processed GPT text to a json file
+    #disabled - to be fixed
+    #dictionary = {"steps": processed, "urls" : img_urls}
+    # Serializing json
+    #json_object = json.dumps(dictionary, indent=1)
+    
+    # Writing to sample.json
+    #with open("./haze-frontend/public/steps.json", "w") as outfile:
+    #    outfile.write(json_object)
 
 #@app.route('/api', methods = ['POST'])
 #@app.route('/')
-def full_circ_instance(verbose):
+def full_circ_instance(verbose, sim_type, N_qubits, start, steps, activate_ai):
     # provider
     provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
-    provider.backends()
-    backend = provider.get_backend("ionq_simulator")
+
+    if sim_type == 'ideal':
+        provider.backends()
+        backend = provider.get_backend("ionq_simulator")
+    elif sim_type == 'noisy':
+        pass
+    elif sim_type == 'hardware':
+        pass
 
     #open json file.
     #places - a list of strings
@@ -403,14 +272,40 @@ def full_circ_instance(verbose):
     #data = request.json
     #list_places = data.get['places']
     #list_probs = data.get['prob']
-    list_places = ["A rooftop bar",
+    all_places =  [
+    "A rooftop bar",
     "A comedy club",
     "A concert venue",
     "A music festival",
     "A street fair",
     "A bowling alley",
-    "A casino"]
-    list_probs = [0,0,0,0,0,0,0]
+    "A casino",
+    "A sports stadium",
+    "A karaoke bar",
+    "A restaurant with live music",
+    "A rooftop terrace",
+    "A beach bonfire",
+    "A drive-in movie theater",
+    "A laser tag arena",
+    "A trampoline park",
+    "An escape room",
+    "A miniature golf course",
+    "A rock climbing gym",
+    "A go-kart track",
+    "A bowling alley",
+    "A comedy club",
+    "A concert hall",
+    "A music festival",
+    "A street festival",
+    "A rooftop pool",
+    "A rooftop garden",
+    "A lounge",
+    "A dance club",
+    "A public square",
+    "A rooftop yoga class"]
+
+    list_places = np.random.choice(all_places, N_qubits, replace = False)
+    list_probs = np.random.rand(N_qubits)
 
     K_max = np.pi/4
     K_vals = np.zeros(len(list_probs))
@@ -418,9 +313,9 @@ def full_circ_instance(verbose):
     for j in range(len(list_probs)):
         K_vals[j] = K_max*int(list_probs[j])/100.0
 
-    start = 0
+    #start = 4
     #start = data.get['start']
-    steps = 2
+    #steps = 3
     #steps = data.get['steps']
     J_val = np.pi/4 #set a default speed value
     circuit = CircuitSpec(start, steps, J_val, K_vals, backend)
@@ -433,36 +328,41 @@ def full_circ_instance(verbose):
         print("\n")
 
     #feed final_vals into Rob's cleanup function
-    processed_vals = Clean_Results(final_vals, n_walkers = 1)
+    processed_vals, active_sites = Clean_Results(final_vals, n_walkers = 1)
+    #print(processed_vals)
     list_of_likelyhood = find_likelyhood_strings(processed_vals)
+    #print(list_of_likelyhood)
     #get entropy from results
     entropy_specifier = wording_entropy(Entropy(processed_vals), max_val = np.log(len(list_probs)))
 
     #feed resulting array into Gavin's plotting object
     #do not take into account the last value for the plot - that's the Errors!
-    PolarPlotmaker(processed_vals, labels=list_places, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'chartreuse', linelength = 10, pad = 8, save_name = './assets/roseplot', show = False, has_error = True, offwhite_cutoff=170, labelsize = 8)
+    PolarPlotmaker(processed_vals, labels=list_places, figsize = (5,5), dpi = 120, background = None, debug = False, tick_color = 'chartreuse', linelength = 10, pad = 8, save_name = './haze-frontend/public/roseplot', show = False, has_error = True, offwhite_cutoff=170, labelsize = 8)
     #this takes into
     #list_places
     #processed_vals
-    #saves picture into assets/roseplot.png
+    #saves picture into haze-frontend/public/roseplot.png
 
-    #feed into openai function
-    storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, list_places[start])
-    print(storyline)
+    if activate_ai:
 
-    #clean storyline into 3 separated paragraphs
-    #feed into Dall-E API
+        #feed into openai function
+        storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], active_sites[:-1], entropy_specifier, list_places[start])
+        print(storyline)
 
-    image_from_response(storyline)
+        #clean storyline into 3 separated paragraphs
+        #feed into Dall-E API
+
+        image_from_response(storyline)
 
 
 if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    full_circ_instance(verbose = True)
-
-    #do function
+    #false AI pipeline
+    #full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12, start = 4, steps = 3, activate_ai=False)
+    #true AI pipeline    
+    full_circ_instance(verbose = True, sim_type = 'ideal', N_qubits = 12, start = 4, steps = 3, activate_ai=True)
 
 
 
