@@ -18,10 +18,8 @@ from matplotlib import patheffects
 #plt.rcParams['path.effects'] = [patheffects.withStroke(linewidth=4, foreground='b')]
 from PIL import Image, ImageFilter
 
-openai.api_key = "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"
+openai.api_key = "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"
 
-
-openai.api_key = "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"
 
 # Load your API key from an environment variable or secret management service
 app = Flask(__name__)
