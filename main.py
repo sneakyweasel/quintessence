@@ -364,6 +364,19 @@ def gpt_prompt_and_eval(input_places, input_probs, entropy_specifier, initial_st
 
     return response.choices[0].text
 
+def image_from_response(storyline):
+    #split the text
+    prepro = storyline.split('\n')
+    processed = []
+    for i in range(len(prepro)):
+        if prepro[i][0:3] != 'Step':
+            processed.append(prepro[i])
+
+    for step in range(len(processed)):
+        img = openai.Image.create(prompt=processed[step], n=1,size="1024x1024")
+        img.save("pic"+step+'.png', "PNG")
+
+
 
 
 #@app.route('/api', methods = ['POST'])
@@ -406,6 +419,7 @@ def full_circ_instance(verbose):
 
     if verbose==True:
         print("\n")
+        print("Bitstring results and shot number out of 1024 total shots")
         print(final_vals)
         print("\n")
 
@@ -427,12 +441,15 @@ def full_circ_instance(verbose):
     storyline = gpt_prompt_and_eval(list_places, list_of_likelyhood[:-1], entropy_specifier, list_places[start])
     print(storyline)
 
+    #clean storyline into 3 separated paragraphs
+    #feed into Dall-E API
+
 
 if __name__ == "__main__":
     #app.run()
     #1 call the API
 
-    full_circ_instance(True)
+    full_circ_instance(verbose = True)
 
     #do function
 
