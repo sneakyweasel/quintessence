@@ -28,7 +28,7 @@ For a more in depth discussion of the applied circuit, see the following [file](
 
 ![rose](./assets/roseplot.png)
 
-Mr. Quanta awoke on the rooftop bar, feeling a bit disoriented. He had no idea how he had gotten there, but he had a vague recollection of a concert venue. He remembered the music, the lights, and the energy of the crowd. He had been having a great time, but he couldn't remember how he had ended up on the rooftop bar.
+Mr. Quanta awoke in a rooftop garden, surrounded by lush foliage and vibrant blooms. The sun shone down on him, warming his skin and casting a golden hue on the world around him. He felt a sense of peace and tranquility, and he was filled with a sense of wonder as he looked around. He had no idea how he had gotten there, but he was determined to find out.
 
 ![generated Image](./assets/pic0.png)
 
@@ -36,16 +36,15 @@ Mr. Quanta awoke on the rooftop bar, feeling a bit disoriented. He had no idea h
 
 You'll need to provide your own API keys as env variables at the beginning on main.py
 
-- provider = IonQProvider("tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S")
-- openai.api_key = "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"
+- OPENAI_API_KEY = "123456"
+- QUANTUM_API_KEY = "123456"
 
-You need to install those python packages:
+We provide a pipenv file to install all the dependencies.
 
-- qiskit
-- qiskit-ionq
-- flask
-- flask-cors
-- openai
+```bash
+pipenv install
+pipenv shell
+```
 
 ## Run
 
