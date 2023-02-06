@@ -9,13 +9,13 @@ import requests
 from flask import Flask
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import Parameter
-from qiskit_ionq import IonQProvider
+from qiskit_ionq import IonQProvider  # pylint: disable=import-error
 
 from polar_plot import entropy, polar_plot_maker
 
 # Load API keys from environment variables
-OPENAI_API_KEY = ""
-QUANTUM_API_KEY = ""
+OPENAI_API_KEY = "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"
+QUANTUM_API_KEY = "tQgNZln2nI3JSOg7hZhRXjSJHYfgrS2S"
 
 PLACES = [
     "A rooftop bar",
@@ -76,34 +76,34 @@ class CircuitSpec:
             K_i.append(Parameter('K_'+str(ind)))
 
         # Define Unitary
-        qc_U = QuantumCircuit(L)
+        qc_unitary = QuantumCircuit(L)
         for i in range(L):
-            qc_U.rz(K_i[i]/2, i)
+            qc_unitary.rz(K_i[i]/2, i)
         for i in range(L):
             if i % 2 == 0:
-                qc_U.rxx(-J/2, i % L, (i+1) % L)
-                qc_U.ryy(-J/2, i % L, (i+1) % L)
+                qc_unitary.rxx(-J/2, i % L, (i+1) % L)
+                qc_unitary.ryy(-J/2, i % L, (i+1) % L)
         for i in range(L):
             if i % 2 != 0:
-                qc_U.rxx(-J, i % L, (i+1) % L)
-                qc_U.ryy(-J, i % L, (i+1) % L)
+                qc_unitary.rxx(-J, i % L, (i+1) % L)
+                qc_unitary.ryy(-J, i % L, (i+1) % L)
         for i in range(L):
             if i % 2 == 0:
-                qc_U.rxx(-J/2, i % L, (i+1) % L)
-                qc_U.ryy(-J/2, i % L, (i+1) % L)
+                qc_unitary.rxx(-J/2, i % L, (i+1) % L)
+                qc_unitary.ryy(-J/2, i % L, (i+1) % L)
         for i in range(L):
-            qc_U.rz(K_i[i]/2, i)
+            qc_unitary.rz(K_i[i]/2, i)
 
         # Compose Main Circuit with set number of Unitary steps:
         qc_main = QuantumCircuit(L)
         qc_main.x(self.start)
-        for step in range(self.steps):
-            qc_main = qc_main.compose(qc_U, qubits=range(L))
+        for i in range(self.steps):
+            qc_main = qc_main.compose(qc_unitary, qubits=range(L))
 
         # Add Measurement Circuit
-        qc_meas = QuantumCircuit(L, L)
-        qc_meas.measure_all(add_bits=False)
-        qc_end = qc_main.compose(qc_meas, range(L))
+        qc_measure = QuantumCircuit(L, L)
+        qc_measure.measure_all(add_bits=False)
+        qc_end = qc_main.compose(qc_measure, range(L))
 
         # Bind Parameters
         qc_end = qc_end.bind_parameters({J: self.speed})
@@ -148,8 +148,8 @@ def full_circuit_instance(sim_type, nb_qubits, start, steps, activate_ai, verbos
     k_vals = np.zeros(len(list_probs))
 
     # parse into numerical values the probs array
-    for count, j in enumerate(list_probs):
-        k_vals[j] = k_max*int(list_probs[j])/100.0
+    for i, prob in enumerate(list_probs):
+        k_vals[i] = k_max * int(prob) / 100.0
 
     j_val = np.pi / 4  # set a default speed value
     circuit = CircuitSpec(start, steps, j_val, k_vals, backend)
@@ -288,8 +288,8 @@ def clean_results(counts, n_walkers, verbose=False):
     site = '1'
 
     active_sites = []
-    for i in enumerate(sites_list):
-        active_sites.append(np.abs(sites_list[i].rfind(site)-length_qubits))
+    for i, obj in enumerate(sites_list):
+        active_sites.append(np.abs(obj.rfind(site) - length_qubits))
 
     if verbose:
         print(f'Ordered sites probabilities: {sites_prob}')
@@ -298,7 +298,7 @@ def clean_results(counts, n_walkers, verbose=False):
 
 def find_likelyhood_strings(array):
     ''' Method to convert probabilities to likelyhoods strings.'''
-    possibilities = [0, "may have gone ",  "likely went "]
+    possibilities = [0, "may have gone ", "likely went "]
     # this can be changed
     list_of_likelyhood = []
     for ua in array:
@@ -354,6 +354,7 @@ def gpt_prompt_and_eval(input_places, input_probs, tags, entropy_specifier, init
 
     prompt_init += "."
 
+    openai.api_key = OPENAI_API_KEY
     response = openai.Completion.create(
         model="text-davinci-003", prompt=prompt_init, temperature=0, max_tokens=400)
 
