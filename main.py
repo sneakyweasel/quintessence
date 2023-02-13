@@ -61,10 +61,9 @@ class CircuitSpec:
     def __init__(self, start, steps, speed, likelyhood, backend):
         self.start = start  # starting site
         self.steps = steps  # number of trotter steps
-        self.speed = speed
+        self.speed = speed  # walking speed
         self.likelyhood = likelyhood  # that's the K values
-        # Depends on the configuration of the application.
-        self.backend = backend
+        self.backend = backend  # quantum backend
 
     def random_walk(self):
         '''Method to create the quantum circuit.'''
@@ -132,8 +131,8 @@ def clean_results(counts, n_walkers):
 
     for key in counts.keys():
         totes = 0
-        for l in key:
-            if l == '1':
+        for i in key:
+            if i == '1':
                 totes += 1
             else:
                 pass

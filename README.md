@@ -46,12 +46,29 @@ pipenv install
 pipenv shell
 ```
 
-## Run
+To install the vue frontend, run those commands.
+
+```bash
+cd haze-frontend
+yarn install
+yarn serve
+```
+
+## Run python server
 
 To run "Quantum Haze" you need to run the following command:
 
 ```bash
 python main.py
+```
+
+## Run frontend client
+
+Running the frontend client will make it available at: <http://localhost:8080/>
+
+```bash
+cd haze-frontend
+yarn serve
 ```
 
 ## Team members

@@ -3,6 +3,9 @@ assets/pic0.jpg
 assets/pic1.jpg
 assets/pic2.jpg
 
+# Vue node-modules
+haze-frontend/node_modules/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

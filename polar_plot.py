@@ -47,7 +47,7 @@ def polar_plot_maker(
     if has_error:
         n_labels += 1
 
-    angles = np.linspace(0, 2*np.pi-2*np.pi/(n_labels-1), n_labels)
+    angles = np.linspace(0, 2 * np.pi - 2 * np.pi / (n_labels - 1), n_labels)
     angles = np.concatenate((angles, [angles[0]]))
     probabilities = np.concatenate((probabilities, [probabilities[0]]))
 
