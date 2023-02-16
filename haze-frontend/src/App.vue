@@ -1,48 +1,71 @@
 <template>
     <div class="container">
-        <h1 id="title">Quantum Haze</h1>
-        <h2 id="subtitle">Quintessence - MIT iQuHACK 2023</h2>
-        <img id="logo" alt="Vue logo" src="./assets/logo2.png" width="400">
+        <h1 id="title" class="text-center">Haze</h1>
+        <h2 id="subtitle" class="text-center">Quantum comic strip generator</h2>
+        <!-- <h2 id="subtitle" class="text-center">Quintessence - MIT iQuHACK 2023</h2> -->
 
         <div v-if="true">
-            <HazeConfig />
+            <HazeForm />
         </div>
         <div v-else>
             <HazeResults />
         </div>
-    </div>
+</div>
 </template>
 
 <script>
-import HazeConfig from './components/HazeConfig.vue'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import HazeForm from './components/HazeForm.vue'
 import HazeResults from './components/HazeResults.vue'
 
 export default {
     name: 'App',
     components: {
-        HazeConfig,
+        HazeForm,
         HazeResults
     }
 }
 </script>
 
 <style>
-html {
-    background-color: #16161d;
-}
-
 @font-face {
     font-family: "RoadRage";
     src: url("./assets/Road_Rage.otf");
 }
 
-#app {
+#app,
+html {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    background-color: #000;
+    background-color: #ccc;
+    /* color: #2c3e50; */
+
 }
 
 #title {

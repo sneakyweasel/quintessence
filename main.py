@@ -61,7 +61,7 @@ class CircuitSpec:
     def __init__(self, start, steps, speed, likelyhood, backend):
         self.start = start  # starting site
         self.steps = steps  # number of trotter steps
-        self.speed = speed  # walking speed
+        self.speed = speed  # hopping speed
         self.likelyhood = likelyhood  # that's the K values
         self.backend = backend  # quantum backend
 
