@@ -1,89 +1,100 @@
 <template>
-    <div class="card mt-5">
-        <div class="card-body">
-            <h5 class="card-title">Quantum computer</h5>
-            <div class="row mt-3"> <!-- Quantum computer -->
-                <div class="col-6">
-                    <label for="computer_select" class="form-label">
-                        <span class="">Select quantum computer</span>
-                    </label>
-                </div>
-                <div class="col-6">
-                    <select id="computer_select" class="form-select">
-                        <option value="ionq" selected>IonQ</option>
-                        <option value="ibmq">IBMQ 'simulator'</option>
-                        <option value="pasqal">Pasqal 'simulator'</option>
-                    </select>
-                </div>
-            </div>
+    <form @submit.prevent="submit" class="align-items-center">
 
-            <div class="row mt-3"> <!-- Number of qbits -->
-                <div class="col-6">
-                    <label for="qbit_count_range" class="form-label">
-                        <span class="">Number of qbits: <b>{{ qbit_count }}</b></span>
-                    </label>
+        <!-- Quantum computer form card -->
+        <div class="card mt-5">
+            <div class="card-body">
+                <h5 class="card-title">Quantum computer</h5>
+                <div class="row mt-3"> <!-- Quantum computer -->
+                    <div class="col-5">
+                        <label for="computer_select" class="form-label">
+                            <span class="">Select quantum computer</span>
+                        </label>
+                    </div>
+                    <div class="col-5">
+                        <select id="computer_select" class="form-select">
+                            <option value="ionq" selected>IonQ</option>
+                            <option value="ibmq">IBMQ 'simulator'</option>
+                            <option value="pasqal">Pasqal 'simulator'</option>
+                        </select>
+                    </div>
+                    <div class="col-2"></div>
                 </div>
-                <div class="col-6">
-                    <input id="qbit_count_range" v-model.number="qbit_count" type="range" class="form-range" min="2"
-                        max="12" step="1">
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Storyline elements</h5>
-            <p class="card-text">We are going to generate a story using a random quantum walk generator from your starting
-                position to various places you might have been to with varying chances.</p>
-            <p>
-                The first place will be your starting location.
-            </p>
-
-            <form @submit.prevent="submit" class="align-items-center">
-
-                <!-- Dynamic input -->
-                <div v-for="i in qbit_count" :key="'row' + i" class="mt-2">
-                    <div class="row" :key="i">
-                        <!-- Place text input -->
-                        <div class="col-6">
-                            <input :id="'place' + i" type="text" class="form-control" :value="get_random_place()"
-                                :key="'place' + i">
-                        </div>
-                        <!-- Probability slider input -->
-                        <div class="col-5 mt-2">
-                            <input :id="'prob' + i" type="range" class="form-range" :value="get_random_value()" min="0"
-                                max="100" step="10" :key="'prob' + i" @input="update_percent_label(i)">
-                        </div>
-                        <!-- Probability percentage display -->
-                        <div class="col-1 mt-1">
-                            <span :id="'percent_label_' + i">0%</span>
-                        </div>
+                <div class="row mt-3"> <!-- Number of qbits -->
+                    <div class="col-5">
+                        <label for="qbit_count_range" class="form-label">
+                            <span class="">Number of qbits:</span>
+                        </label>
+                    </div>
+                    <div class="col-5">
+                        <input id="qbit_count_range" v-model.number="qbit_count" type="range" class="form-range" min="2"
+                            max="12" step="1" @input="update_all_percent_labels()">
+                    </div>
+                    <div class="col-2">
+                        <span class="badge rounded-pill bg-primary">
+                            {{ qbit_count }}
+                        </span>
                     </div>
                 </div>
-
-            </form>
+            </div>
         </div>
-    </div>
 
-    <div class="row mt-4">
-        <div class="col-4"></div>
-        <div class="col-4">
-            <button class="btn btn-lg">
-                Remember
-            </button>
+        <!-- Storyline elements form card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Storyline elements</h5>
+                <p class="card-text">We are going to generate a short story using a random quantum walk generator from your
+                    starting position to various places you might have been to with varying chances.</p>
+                <p>
+                    The first place will be your starting location.
+                </p>
+
+                <!-- Dynamic input - decrease index to start at 0 -->
+                <div v-for="i in qbit_count" :key="'row' + (i - 1)" class="row mt-2">
+
+                    <!-- Place text input -->
+                    <div class="col-5">
+                        <div class="input-group">
+                            <button class="btn btn-light" @click.prevent="update_place_input(i - 1)">
+                                🔄
+                            </button>
+                            <input :id="'place' + (i - 1)" type="text" class="form-control" :value="get_random_place()"
+                                :key="'place' + (i - 1)">
+                        </div>
+                    </div>
+                    <!-- Probability slider input -->
+                    <div class="col-5 mt-2">
+                        <input :id="'prob' + (i - 1)" type="range" class="form-range" :value="get_random_value()" min="0"
+                            max="100" step="10" :key="'prob' + (i - 1)" @input="update_percent_label(i - 1)">
+                    </div>
+                    <!-- Probability percentage display -->
+                    <div class="col-2 mt-1">
+                        <span :id="'percent_label_' + (i - 1)" class="badge rounded-pill bg-primary">
+                            0 %
+                        </span>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        <div class="col-4"></div>
-</div>
+
+        <!-- Submit button -->
+        <div class="row mt-4">
+            <div class="col-4"></div>
+            <div class="col-4">
+                <button id="submit_button" class="btn btn-lg">
+                    Remember
+                </button>
+            </div>
+            <div class="col-4"></div>
+        </div>
+        <br>
+        <br>
+</form>
 </template>
 
 <script>
-
-
-
-
-
-
 import axios from "axios";
 
 export default {
@@ -101,18 +112,30 @@ export default {
         get_random_value: function () {
             return Math.floor(Math.random() * 100);
         },
+        update_place_input: function (i) {
+            const place = this.get_random_place();
+            document.getElementById('place' + i).value = place;
+        },
         update_percent_label: function (i) {
             const percent = document.getElementById('prob' + i).value;
             document.getElementById('percent_label_' + i).innerHTML = percent + '%';
         },
+        update_all_percent_labels: function () {
+            for (let i = 0; i < this.qbit_count; i++) {
+                this.update_percent_label(i);
+            }
+        },
         submit: function () {
             // Simple POST request with a JSON body using axios
             let data = {
+                computer: document.getElementById('computer_select').value,
+                qbit_count: this.qbit_count,
                 places: [],
             };
-            for (let i = 1; i < 10; i++) {
+            for (let i = 0; i < this.qbit_count; i++) {
                 const place = document.getElementById('place' + i).value;
-                const probability = document.getElementById('prob' + i).value;
+                const prob_str = document.getElementById('prob' + i).value;
+                const probability = parseFloat(prob_str) / 100;
                 data.places.push({ place, probability });
             }
             console.log(data);
@@ -124,6 +147,11 @@ export default {
                 .catch(err => {
                     alert('something went wrong! ' + err);
                 })
+        }
+    },
+    mounted() {
+        for (let i = 0; i < this.qbit_count; i++) {
+            this.update_percent_label(i);
         }
     }
 }
@@ -180,7 +208,7 @@ input[type="range"]::-ms-fill-upper {
     background-color: grey;
 }
 
-button {
+#submit_button {
     color: magenta;
     margin-top: 0px;
     font-family: 'RoadRage', serif;

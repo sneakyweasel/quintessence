@@ -320,27 +320,32 @@ def save_image(img_url, index):
         handler.write(img_data)
 
 
-def full_circuit_instance(sim_type, nb_qubits, start, steps, activate_ai):
+def full_circuit_instance(nb_qubits, start, steps, activate_ai):
     ''' Method to create the full circuit instance. '''
 
-    # Create the quantum circuit
-    provider = IonQProvider(QUANTUM_API_KEY)
+    # Example JSON data from the frontend
+    json_data = {
+        "computer": "ionq",  # quantum computer to use
+        "qbit_count": 5,    # number of qubits to use
+        "places": [         # list of places to visit and their probabilities
+            {"place": "Gym", "probability": 0.2},
+            {"place": "Opera", "probability": 0.2},
+            {"place": "Rooftop bar", "probability": 0.2},
+            {"place": "Street fair", "probability": 0.2},
+            {"place": "Pool", "probability": 0.2},
+        ]
+    }
 
-    if sim_type == 'ideal':
+    # Load the correct quantum backend
+    if json_data['computer'] == 'ionq':
+        provider = IonQProvider(QUANTUM_API_KEY)
         provider.backends()
         backend = provider.get_backend("ionq_simulator")
-    elif sim_type == 'noisy':
-        pass
-    elif sim_type == 'hardware':
-        pass
-
-    # open json file.
-    # places - a list of strings
-    # probs - a list of strings (a number)
-    # start - a number (the index)
-    # data = request.json
-    # list_places = data.get['places']
-    # list_probs = data.get['prob']
+    elif json_data['computer'] == 'qiskit':
+        backend = provider.get_backend('ibmq_qasm_simulator')
+        provider.backends()
+    else:
+        raise NameError("Unknown quantum backend.")
 
     # We should implement a unique choice of places
     list_places = np.random.choice(PLACES, nb_qubits, replace=False)
@@ -431,7 +436,6 @@ def full_circuit_instance(sim_type, nb_qubits, start, steps, activate_ai):
 if __name__ == "__main__":
 
     full_circuit_instance(
-        sim_type='ideal',
         nb_qubits=12,
         start=3,
         steps=2,
