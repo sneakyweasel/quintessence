@@ -11,8 +11,13 @@ qiskit-ionq = "*"
 openai = "*"
 requests = "*"
 matplotlib = "*"
+flask-cors = "*"
+qiskit-aer = "*"
+ibm-quantum-widgets = "*"
+pylatexenc = "*"
 
 [dev-packages]
+ipykernel = "*"
 
 [requires]
 python_version = "3.7"

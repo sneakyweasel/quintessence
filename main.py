@@ -3,7 +3,6 @@ import time
 import numpy as np
 import openai
 import requests
-from flask import Flask
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import Parameter
 from qiskit_ionq import IonQProvider  # pylint: disable=import-error
@@ -50,9 +49,6 @@ PLACES = [
     "A public square",
     "A rooftop yoga class"
 ]
-
-# Create the Flask app
-app = Flask(__name__)
 
 
 class CircuitSpec:
@@ -426,11 +422,6 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
             save_image(image_url, i)
             time.sleep(3)
         print(image_urls)
-
-
-# Webserver code
-# @app.route('/api', methods = ['POST'])
-# @app.route('/')
 
 
 if __name__ == "__main__":

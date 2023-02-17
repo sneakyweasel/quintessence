@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="submit" class="align-items-center">
+    <form @submit.prevent="" class="align-items-center">
 
         <!-- Quantum computer form card -->
         <div class="card mt-5">
@@ -80,18 +80,29 @@
         </div>
 
         <!-- Submit button -->
-        <div class="row mt-4">
+        <div class="row mt-4" v-if="!display_quantum_circuit">
             <div class="col-4"></div>
             <div class="col-4">
-                <button id="submit_button" class="btn btn-lg">
+                <button id="submit_button" class="btn btn-lg" @click="submit_query">
                     Remember
                 </button>
             </div>
             <div class="col-4"></div>
         </div>
-        <br>
-        <br>
-</form>
+    </form>
+
+    <!-- Quantum circuit toggle -->
+    <div class="card mt-4" v-if="display_quantum_circuit">
+        <div class="card-body">
+            <h5 class="card-title">Quantum computer response</h5>
+            <p class="card-text">
+                The quantum computer has been asked to generate a random quantum walk from your input parameters.
+            </p>
+            <p>{{ response }}</p>
+        </div>
+    </div>
+    <br>
+<br>
 </template>
 
 <script>
@@ -101,7 +112,10 @@ export default {
     data() {
         return {
             qbit_count: 5,
-            bitString: null
+            display_quantum_circuit: false,
+            display_polar_plot: false,
+            display_story: false,
+            response: null,
         };
     },
     methods: {
@@ -125,7 +139,7 @@ export default {
                 this.update_percent_label(i);
             }
         },
-        submit: function () {
+        submit_query: function () {
             // Simple POST request with a JSON body using axios
             let data = {
                 computer: document.getElementById('computer_select').value,
@@ -140,9 +154,11 @@ export default {
             }
             console.log(data);
 
-            axios.post('/api', data)
+            const path = 'http://localhost:5000/generate';
+            axios.post(path, data)
                 .then(res => {
-                    this.bitString = res.data.bitString;
+                    this.response = res.data;
+                    this.display_quantum_circuit = true;
                 })
                 .catch(err => {
                     alert('something went wrong! ' + err);

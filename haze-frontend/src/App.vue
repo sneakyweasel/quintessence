@@ -14,32 +14,6 @@
 </template>
 
 <script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import HazeForm from './components/HazeForm.vue'
 import HazeResults from './components/HazeResults.vue'
 
