@@ -343,19 +343,23 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
     else:
         raise NameError("Unknown quantum backend.")
 
-    # We should implement a unique choice of places
-    list_places = np.random.choice(PLACES, nb_qubits, replace=False)
-    list_probs = np.zeros(nb_qubits)
-    list_probs[np.random.randint(nb_qubits)] = np.pi / 4
+    # Create places and probabilities arrays
+    places = []
+    probabilities = []
+    for place in json_data['places']:
+        places.append(place['place'])
+        probabilities.append(place['probability'])
 
+    # Set a default speed value
+    j_val = np.pi / 4
+
+    # Scale the probabilities into k values
     k_max = np.pi / 4
-    k_vals = np.zeros(len(list_probs))
-
-    # parse into numerical values the probs array
-    for i, prob in enumerate(list_probs):
+    k_vals = np.zeros(len(probabilities))
+    for i, prob in enumerate(probabilities):
         k_vals[i] = k_max * int(prob) / 100.0
 
-    j_val = np.pi / 4  # set a default speed value
+    # Create quantum circuit instance
     circuit = CircuitSpec(start, steps, j_val, k_vals, backend)
     final_vals = circuit.random_walk()
 
@@ -368,7 +372,7 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
     # get entropy from results
     entropy_specifier = convert_entropy_to_words(
         entropy_val=entropy(processed_vals),
-        entropy_max=np.log(len(list_probs))
+        entropy_max=np.log(len(probabilities))
     )
 
     if VERBOSE:
@@ -382,7 +386,7 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
     # do not take into account the last value for the plot - that's the Errors!
     polar_plot_maker(
         processed_vals,
-        labels=list_places,
+        labels=places,
         figsize=(5, 5),
         dpi=120,
         debug=False,
@@ -400,11 +404,11 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
 
         # Create the prompt for GPT-3
         prompt = create_gpt3_prompt(
-            list_places,
+            places,
             list_of_likelyhood[:-1],
             active_sites[:-1],
             entropy_specifier,
-            list_places[start]
+            places[start]
         )
 
         # Get the storyline from GPT-3
