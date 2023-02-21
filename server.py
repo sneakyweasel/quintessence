@@ -16,12 +16,12 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 def generate():
     ''' Generate the quantum comic '''
     if request.method == 'POST':
-        response_object = {'status': 'success'}
         post_data = request.get_json()
         quantum_computer = post_data.get('quantum_computer')
         qbit_count = post_data.get('qbit_count')
         places = post_data.get('places')
 
+        response_object = {'status': 'success'}
         response_object['message'] = f'{qbit_count} qbits are working...'
     else:
         response_object['status'] = 'fail'
