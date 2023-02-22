@@ -3,7 +3,7 @@ import time
 import numpy as np
 import openai
 import requests
-from qiskit import QuantumCircuit, transpile
+from qiskit import Aer, QuantumCircuit, transpile
 from qiskit.circuit import Parameter
 from qiskit_ionq import IonQProvider  # pylint: disable=import-error
 from polar_plot import entropy, polar_plot_maker
@@ -16,116 +16,90 @@ OPENAI_API_KEY = "123456"
 QUANTUM_API_KEY = "123456"
 
 # Constants
-VERBOSE = False
-PLACES = [
-    "A rooftop bar",
-    "A comedy club",
-    "A concert venue",
-    "A music festival",
-    "A street fair",
-    "A bowling alley",
-    "A casino",
-    "A sports stadium",
-    "A karaoke bar",
-    "A restaurant with live music",
-    "A rooftop terrace",
-    "A beach bonfire",
-    "A drive-in movie theater",
-    "A laser tag arena",
-    "A trampoline park",
-    "An escape room",
-    "A miniature golf course",
-    "A rock climbing gym",
-    "A go-kart track",
-    "A bowling alley",
-    "A comedy club",
-    "A concert hall",
-    "A music festival",
-    "A street festival",
-    "A rooftop pool",
-    "A rooftop garden",
-    "A lounge",
-    "A dance club",
-    "A public square",
-    "A rooftop yoga class"
-]
+VERBOSE = True
 
 
-class CircuitSpec:
-    '''Class for the circuit specification.'''
+def generate_quantum_circuit(json_data):
+    '''Generate the quantum circuit from the JSON data.'''
 
-    def __init__(self, start, steps, speed, likelyhood, backend):
-        self.start = start  # starting site
-        self.steps = steps  # number of trotter steps
-        self.speed = speed  # hopping speed
-        self.likelyhood = likelyhood  # that's the K values
-        self.backend = backend  # quantum backend
+    # Retrieve probabilities
+    probabilities = []
+    for place in json_data['places']:
+        probabilities.append(place['probability'])
 
-    def random_walk(self):
-        '''Method to create the quantum circuit.'''
-        L = len(self.likelyhood)
+    # Quantum circuit variables
+    start = 0
+    probabilities[start] = 0
+    steps = 1
+    J_val = np.pi / 10
 
-        # Define Parameters
-        J = Parameter('J')
-        K_i = []
-        for ind in range(L):
-            K_i.append(Parameter('K_'+str(ind)))
+    # Define Qiskit parameters
+    qbit_count = len(probabilities)
+    J = Parameter('J')
+    K_i = []
+    for i in range(qbit_count):
+        K_i.append(Parameter('K_'+str(i)))
 
-        # Define Unitary
-        qc_unitary = QuantumCircuit(L)
-        for i in range(L):
-            qc_unitary.rz(K_i[i]/2, i)
-        for i in range(L):
-            if i % 2 == 0:
-                qc_unitary.rxx(-J/2, i % L, (i+1) % L)
-                qc_unitary.ryy(-J/2, i % L, (i+1) % L)
-        for i in range(L):
-            if i % 2 != 0:
-                qc_unitary.rxx(-J, i % L, (i+1) % L)
-                qc_unitary.ryy(-J, i % L, (i+1) % L)
-        for i in range(L):
-            if i % 2 == 0:
-                qc_unitary.rxx(-J/2, i % L, (i+1) % L)
-                qc_unitary.ryy(-J/2, i % L, (i+1) % L)
-        for i in range(L):
-            qc_unitary.rz(K_i[i]/2, i)
+    # Define unitary
+    qc_unitary = QuantumCircuit(qbit_count)
+    qc_unitary.barrier()
+    for i in range(qbit_count):
+        qc_unitary.rz(K_i[i]/2, i)
+    for i in range(qbit_count):
+        if i % 2 == 0:
+            qc_unitary.rxx(-J / 2, i % qbit_count, (i+1) % qbit_count)
+            qc_unitary.ryy(-J / 2, i % qbit_count, (i+1) % qbit_count)
+    for i in range(qbit_count):
+        if i % 2 != 0:
+            qc_unitary.rxx(-J, i % qbit_count, (i+1) % qbit_count)
+            qc_unitary.ryy(-J, i % qbit_count, (i+1) % qbit_count)
+    for i in range(qbit_count):
+        if i % 2 == 0:
+            qc_unitary.rxx(-J/2, i % qbit_count, (i+1) % qbit_count)
+            qc_unitary.ryy(-J/2, i % qbit_count, (i+1) % qbit_count)
+    for i in range(qbit_count):
+        qc_unitary.rz(K_i[i]/2, i)
 
-        # Compose Main Circuit with set number of Unitary steps:
-        qc_main = QuantumCircuit(L)
-        qc_main.x(self.start)
-        for i in range(self.steps):
-            qc_main = qc_main.compose(qc_unitary, qubits=range(L))
+    # Compose main quantum circuit by duplicating the unitary circuit every step
+    qc_main = QuantumCircuit(qbit_count)
+    qc_main.x(start)
+    for i in range(steps):
+        qc_main = qc_main.compose(qc_unitary, qubits=range(qbit_count))
 
-        # Add Measurement Circuit
-        qc_measure = QuantumCircuit(L, L)
-        qc_measure.measure_all(add_bits=False)
-        qc_end = qc_main.compose(qc_measure, range(L))
+    # Add measurement circuit
+    qc_measure = QuantumCircuit(qbit_count, qbit_count)
+    qc_measure.measure_all(add_bits=False)
+    qc_final = qc_main.compose(qc_measure, range(qbit_count))
 
-        # Bind Parameters
-        qc_end = qc_end.bind_parameters({J: self.speed})
-        for ind in range(L):
-            qc_end = qc_end.bind_parameters({K_i[ind]: self.likelyhood[ind]})
+    # Bind Qiskit parameters
+    qc_final = qc_final.bind_parameters({J: J_val})
+    for ind in range(qbit_count):
+        qc_final = qc_final.bind_parameters({K_i[ind]: probabilities[ind]})
 
-        # Transpile and Run
-        trans_circ = transpile(qc_end, self.backend)
-        job = self.backend.run(trans_circ)
-
-        # Return the counts for the jobs
-        return job.result().get_counts()
+    # Return the quantum circuit
+    return qc_final
 
 
-def clean_results(counts, n_walkers):
+def run_quantum_circuit(quantum_circuit):
+    ''' Run the quantum circuit on the IonQ quantum computer. '''
+    quantum_backend = Aer.get_backend('qasm_simulator')
+    transpiled_circuit = transpile(quantum_circuit, quantum_backend)
+    job = quantum_backend.run(transpiled_circuit)
+    return job.result().get_counts()
+
+
+def clean_quantum_results(simulator_result, n_walkers=1):
     '''Method to clean the results from the quantum computer.'''
     shots = 0
     length_qubits = 0
 
-    for key in counts.keys():
-        shots += counts.get(key)
+    for key in simulator_result.keys():
+        shots += simulator_result.get(key)
         length_qubits = len(key)
     walkers = {}
     extras = {}
 
-    for key in counts.keys():
+    for key in simulator_result.keys():
         totes = 0
         for i in key:
             if i == '1':
@@ -133,14 +107,10 @@ def clean_results(counts, n_walkers):
             else:
                 pass
         if totes == n_walkers:
-            walkers[key] = counts.get(key)
+            walkers[key] = simulator_result.get(key)
         else:
-            extras[key] = counts.get(key)
+            extras[key] = simulator_result.get(key)
 
-    if VERBOSE:
-        print(f'Number of walkers: {n_walkers}')
-        print(f'Number of {n_walkers} occurences: {len(walkers)}')
-        print(f'Number of extra occurences: {len(extras)}')
     walkers_prob = {}
     error_prob = 0
     for key in walkers:
@@ -156,25 +126,16 @@ def clean_results(counts, n_walkers):
         else:
             extras_count += extras.get(key)
     error_prob = extras_count / shots
-    if VERBOSE:
-        print(f'Number of {n_walkers} walkers states: {len(walkers)}')
+
     totes_walkers_prob = 0
     for key in walkers_prob:
         totes_walkers_prob += walkers_prob.get(key)
 
-    if VERBOSE:
-        print(f'Probability of {n_walkers} walkers: {totes_walkers_prob}')
-        print(f'Probability of errors: {error_prob}')
-        print(
-            f'(Sanity check) Total Probability: {totes_walkers_prob + error_prob}')
     final_states = {}
     for key in walkers_prob:
         if walkers_prob.get(key) != 0:
             final_states[key] = walkers_prob.get(key)
-    if VERBOSE:
-        print(f'Number of {n_walkers} walkers states: {len(walkers)}')
-        print(
-            f'Number of {n_walkers} walkers non-zero probability states: {len(final_states)}')
+
     final_states['Error'] = error_prob
     sites_list = []
     sites_prob = []
@@ -182,9 +143,6 @@ def clean_results(counts, n_walkers):
     for key in final_states:
         sites_list.append(key)
     ordered = sorted(sites_list)
-    if VERBOSE:
-        print(f'Ordered sites list: {ordered}')
-        print('='*149)
     for i in ordered:
         sites_prob.append(final_states.get(i))
 
@@ -195,6 +153,8 @@ def clean_results(counts, n_walkers):
         active_sites.append(np.abs(obj.rfind(site) - length_qubits))
 
     if VERBOSE:
+        print(f'Active sites list: {active_sites}')
+        print(f'Ordered sites list: {ordered}')
         print(f'Ordered sites probabilities: {sites_prob}')
     return sites_prob, active_sites
 
@@ -316,7 +276,7 @@ def save_image(img_url, index):
         handler.write(img_data)
 
 
-def full_circuit_instance(nb_qubits, start, steps, activate_ai):
+def full_circuit_instance(start, steps, activate_ai):
     ''' Method to create the full circuit instance. '''
 
     # Example JSON data from the frontend
@@ -360,7 +320,7 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
         k_vals[i] = k_max * int(prob) / 100.0
 
     # Create quantum circuit instance
-    circuit = CircuitSpec(start, steps, j_val, k_vals, backend)
+    circuit = generate_quantum_circuit(json_data)
     final_vals = circuit.random_walk()
 
     # feed final_vals into Rob's cleanup function
@@ -426,13 +386,3 @@ def full_circuit_instance(nb_qubits, start, steps, activate_ai):
             save_image(image_url, i)
             time.sleep(3)
         print(image_urls)
-
-
-if __name__ == "__main__":
-
-    full_circuit_instance(
-        nb_qubits=12,
-        start=3,
-        steps=2,
-        activate_ai=True,
-    )

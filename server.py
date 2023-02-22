@@ -1,7 +1,7 @@
 ''' Flask web application. '''
 from flask_cors import CORS
 from flask import Flask, jsonify, request
-from quantum import CircuitSpec
+from quantum import generate_quantum_circuit, run_quantum_circuit, clean_quantum_results
 
 # instantiate the app
 app = Flask(__name__)
@@ -24,11 +24,22 @@ def generate():
         places = post_data.get('places')
 
         # Create quantum circuit
-        # qc = CircuitSpec(1, 3, speed, likelyhood, quantum_computer)
+        quantum_circuit = generate_quantum_circuit(json_data=post_data)
+
+        # Draw circuit
+        # terminal_draw = str(quantum_circuit.draw(output='text', fold=1000))
+        quantum_circuit.draw(
+            output='mpl', filename='./circuit.png', vertical_compression=True)
+
+        # Perform quantum computation
+        simulator_result = run_quantum_circuit(quantum_circuit)
+        cleaned_result = clean_quantum_results(simulator_result)
+        print(simulator_result)
+        print(cleaned_result)
 
         # Send response
         response_object = {'status': 'success'}
-        response_object['message'] = f'{qbit_count} qbits are working...'
+        response_object['message'] = simulator_result
 
     else:
         response_object['status'] = 'fail'

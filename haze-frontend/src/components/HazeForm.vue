@@ -98,11 +98,20 @@
             <p class="card-text">
                 The quantum computer has been asked to generate a random quantum walk from your input parameters.
             </p>
-            <p>{{ response }}</p>
+            <div v-for="[key, value], i in Object.entries(quantum_result)" :key="'qbit_result_' + i">
+                <p>
+                    <span class="badge rounded-pill bg-primary">
+                        {{ key }}
+                    </span>
+                    <span class="badge rounded-pill bg-secondary">
+                        {{ value }}
+                    </span>
+                </p>
+            </div>
         </div>
     </div>
     <br>
-<br>
+    <br>
 </template>
 
 <script>
@@ -115,7 +124,7 @@ export default {
             display_quantum_circuit: false,
             display_polar_plot: false,
             display_story: false,
-            response: null,
+            quantum_result: null,
         };
     },
     methods: {
@@ -156,8 +165,9 @@ export default {
 
             const path = 'http://localhost:5000/generate';
             axios.post(path, data)
-                .then(res => {
-                    this.response = res.data;
+                .then(response => {
+                    this.quantum_result = response.data.message;
+                    console.log(response.data.message);
                     this.display_quantum_circuit = true;
                 })
                 .catch(err => {
