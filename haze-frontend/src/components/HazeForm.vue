@@ -159,7 +159,7 @@ export default {
                 const place = document.getElementById('place' + i).value;
                 const prob_str = document.getElementById('prob' + i).value;
                 const probability = parseFloat(prob_str) / 100;
-                data.places.push({ place, probability });
+                data.places.push([place, probability]);
             }
             console.log(data);
 

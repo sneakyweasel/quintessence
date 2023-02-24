@@ -25,7 +25,7 @@ def generate_quantum_circuit(json_data):
     # Retrieve probabilities
     probabilities = []
     for place in json_data['places']:
-        probabilities.append(place['probability'])
+        probabilities.append(place[1])
 
     # Quantum circuit variables
     start = 0
