@@ -28,8 +28,8 @@ def generate():
 
         # Draw circuit
         # terminal_draw = str(quantum_circuit.draw(output='text', fold=1000))
-        quantum_circuit.draw(
-            output='mpl', filename='./circuit.png', vertical_compression=True)
+        # quantum_circuit.draw(
+        #     output='mpl', filename='./circuit.png', vertical_compression=True)
 
         # Perform quantum computation
         simulator_result = run_quantum_circuit(quantum_circuit)

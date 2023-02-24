@@ -78,3 +78,9 @@ yarn serve
 - Philippe Cochin | philippe.cochin@gmail.com
 - Gavin Rockwood | gavin.rockwood@physics.rutgers.edu
 - Rob Davis | rpd89@physics.rutgers.edu
+
+## Todos
+
+- JSON is not ordered so the list of places is not ordered.
+- Progressive loading of the story since the computation might take a while.
+- Resend if the API are down.
