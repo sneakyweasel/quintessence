@@ -7,6 +7,15 @@ def filter_errors(result):
     return {key: value for key, value in result.items() if key.count('1') == 1}
 
 
+def get_error_percentage(result):
+    ''' Get the percentage of errors in the results '''
+    errors = 0
+    for key, value in result.items():
+        if key.count('1') != 1:
+            errors += value
+    return errors / sum(result.values())
+
+
 def convert_binary_to_index(binary_string):
     ''' Convert binary strings to indices (e.g. '00010' -> 1 and '10000' -> 4) '''
     if '1' in binary_string:
@@ -46,7 +55,7 @@ def convert_probability_to_likelyhood(probability):
         raise ValueError('Probability must be between 0 and 1.')
 
 
-def entropy(probabilities):
+def compute_entropy(probabilities):
     '''Compute the normed entropy of the probability distribution.'''
     if isinstance(probabilities, list):
         probabilities = np.array(probabilities)

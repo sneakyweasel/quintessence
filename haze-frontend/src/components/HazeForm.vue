@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="" class="align-items-center">
+    <form @submit.prevent="submit_form" class="align-items-center">
 
         <!-- Quantum computer form card -->
         <div class="card mt-5">
@@ -12,7 +12,7 @@
                         </label>
                     </div>
                     <div class="col-5">
-                        <select id="computer_select" class="form-select">
+                        <select id="computer_select" class="form-select" v-model="quantum_computer">
                             <option value="ionq" selected>IonQ</option>
                             <option value="ibmq">IBMQ 'simulator'</option>
                             <option value="pasqal">Pasqal 'simulator'</option>
@@ -29,7 +29,7 @@
                     </div>
                     <div class="col-5">
                         <input id="qbit_count_range" v-model.number="qbit_count" type="range" class="form-range" min="2"
-                            max="12" step="1" @input="update_all_percent_labels()">
+                            max="12" step="1" @input.prevent="update_all_percent_labels()">
                     </div>
                     <div class="col-2">
                         <span class="badge rounded-pill bg-primary">
@@ -66,7 +66,7 @@
                     <!-- Probability slider input -->
                     <div class="col-5 mt-2">
                         <input :id="'prob' + (i - 1)" type="range" class="form-range" :value="get_random_value()" min="0"
-                            max="100" step="10" :key="'prob' + (i - 1)" @input="update_percent_label(i - 1)">
+                            max="100" step="10" :key="'prob' + (i - 1)" @input.prevent="update_percent_label(i - 1)">
                     </div>
                     <!-- Probability percentage display -->
                     <div class="col-2 mt-1">
@@ -83,7 +83,8 @@
         <div class="row mt-4" v-if="!display_quantum_circuit">
             <div class="col-4"></div>
             <div class="col-4">
-                <button id="submit_button" class="btn btn-lg" @click="submit_query">
+                <!-- <button id="submit_button" class="btn btn-lg" type="submit" @click.prevent="submit_form"> -->
+                <button id="submit_button" class="btn btn-lg" type="submit">
                     Remember
                 </button>
             </div>
@@ -121,6 +122,7 @@ export default {
     data() {
         return {
             qbit_count: 5,
+            quantum_computer: 'ionq',
             display_quantum_circuit: false,
             display_polar_plot: false,
             display_story: false,
@@ -130,7 +132,6 @@ export default {
     methods: {
         get_random_place: function () {
             return places[Math.floor(Math.random() * places.length)];
-            // return places.pop();
         },
         get_random_value: function () {
             return Math.floor(Math.random() * 100);
@@ -148,10 +149,11 @@ export default {
                 this.update_percent_label(i);
             }
         },
-        submit_query: function () {
+        submit_form: function (event) {
+            event.preventDefault();
             // Simple POST request with a JSON body using axios
             let data = {
-                computer: document.getElementById('computer_select').value,
+                computer: this.quantum_computer,
                 qbit_count: this.qbit_count,
                 places: [],
             };
@@ -173,6 +175,9 @@ export default {
                 .catch(err => {
                     alert('something went wrong! ' + err);
                 })
+        },
+        whatever: function () {
+            console.log('whatever');
         }
     },
     mounted() {
