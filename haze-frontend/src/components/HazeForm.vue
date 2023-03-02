@@ -1,11 +1,13 @@
 <template>
-    <form @submit.prevent="submit_form" class="align-items-center">
+    <form @submit.prevent class="align-items-center">
 
         <!-- Quantum computer form card -->
         <div class="card mt-5">
             <div class="card-body">
                 <h5 class="card-title">Quantum computer</h5>
-                <div class="row mt-3"> <!-- Quantum computer -->
+
+                <!-- Quantum computer -->
+                <div class="row mt-3">
                     <div class="col-5">
                         <label for="computer_select" class="form-label">
                             <span class="">Select quantum computer</span>
@@ -21,7 +23,8 @@
                     <div class="col-2"></div>
                 </div>
 
-                <div class="row mt-3"> <!-- Number of qbits -->
+                <!-- Number of qbits -->
+                <div class="row mt-3">
                     <div class="col-5">
                         <label for="qbit_count_range" class="form-label">
                             <span class="">Number of qbits:</span>
@@ -29,7 +32,7 @@
                     </div>
                     <div class="col-5">
                         <input id="qbit_count_range" v-model.number="qbit_count" type="range" class="form-range" min="2"
-                            max="12" step="1" @input.prevent="update_all_percent_labels()">
+                            max="12" step="1" @input.prevent="change_qbit_count()">
                     </div>
                     <div class="col-2">
                         <span class="badge rounded-pill bg-primary">
@@ -51,27 +54,26 @@
                 </p>
 
                 <!-- Dynamic input - decrease index to start at 0 -->
-                <div v-for="i in qbit_count" :key="'row' + (i - 1)" class="row mt-2">
+                <div v-for="place, i in places" :key="'row' + i" class="row mt-2">
 
                     <!-- Place text input -->
                     <div class="col-5">
                         <div class="input-group">
-                            <button class="btn btn-light" @click.prevent="update_place_input(i - 1)">
+                            <button class="btn btn-light" @click.prevent="update_place_input(i)">
                                 🔄
                             </button>
-                            <input :id="'place' + (i - 1)" type="text" class="form-control" :value="get_random_place()"
-                                :key="'place' + (i - 1)">
+                            <input :id="'place' + i" type="text" class="form-control" :value="place[0]" :key="'place' + i">
                         </div>
                     </div>
                     <!-- Probability slider input -->
                     <div class="col-5 mt-2">
-                        <input :id="'prob' + (i - 1)" type="range" class="form-range" :value="get_random_value()" min="0"
-                            max="100" step="10" :key="'prob' + (i - 1)" @input.prevent="update_percent_label(i - 1)">
+                        <input :id="'prob' + i" type="range" class="form-range" :value="place[1]" min="0" max="100"
+                            step="10" :key="'prob' + i" @input.prevent="update_percent_label(i)">
                     </div>
                     <!-- Probability percentage display -->
                     <div class="col-2 mt-1">
-                        <span :id="'percent_label_' + (i - 1)" class="badge rounded-pill bg-primary">
-                            0 %
+                        <span :id="'percent_label_' + i" class="badge rounded-pill bg-primary">
+                            {{ place[1] }} %
                         </span>
                     </div>
 
@@ -83,8 +85,7 @@
         <div class="row mt-4" v-if="!display_quantum_circuit">
             <div class="col-4"></div>
             <div class="col-4">
-                <!-- <button id="submit_button" class="btn btn-lg" type="submit" @click.prevent="submit_form"> -->
-                <button id="submit_button" class="btn btn-lg" type="submit">
+                <button id="submit_button" class="btn btn-lg" type="submit" @click.prevent="submit_form">
                     Remember
                 </button>
             </div>
@@ -123,31 +124,48 @@ export default {
         return {
             qbit_count: 5,
             quantum_computer: 'ionq',
+            places: [],
             display_quantum_circuit: false,
             display_polar_plot: false,
             display_story: false,
             quantum_result: null,
         };
     },
+    created() {
+        for (let i = 0; i < this.qbit_count; i++) {
+            this.places.push(this.create_new_place());
+        }
+    },
     methods: {
         get_random_place: function () {
-            return places[Math.floor(Math.random() * places.length)];
+            return DEFAULT_PLACES[Math.floor(Math.random() * DEFAULT_PLACES.length)];
         },
         get_random_value: function () {
-            return Math.floor(Math.random() * 100);
+            return Math.floor(Math.random() * 10) * 10;
+        },
+        create_new_place: function () {
+            return [
+                this.get_random_place(),
+                this.get_random_value(),
+            ];
+        },
+        change_qbit_count: function () {
+            if (this.qbit_count < this.places.length) {
+                this.places = this.places.slice(0, this.qbit_count);
+            } else {
+                for (let i = this.places.length; i < this.qbit_count; i++) {
+                    this.places.push(this.create_new_place());
+                }
+            }
         },
         update_place_input: function (i) {
             const place = this.get_random_place();
+            this.places[i][0] = place;
             document.getElementById('place' + i).value = place;
         },
         update_percent_label: function (i) {
             const percent = document.getElementById('prob' + i).value;
             document.getElementById('percent_label_' + i).innerHTML = percent + '%';
-        },
-        update_all_percent_labels: function () {
-            for (let i = 0; i < this.qbit_count; i++) {
-                this.update_percent_label(i);
-            }
         },
         submit_form: function (event) {
             event.preventDefault();
@@ -155,14 +173,8 @@ export default {
             let data = {
                 computer: this.quantum_computer,
                 qbit_count: this.qbit_count,
-                places: [],
+                places: this.places,
             };
-            for (let i = 0; i < this.qbit_count; i++) {
-                const place = document.getElementById('place' + i).value;
-                const prob_str = document.getElementById('prob' + i).value;
-                const probability = parseFloat(prob_str) / 100;
-                data.places.push([place, probability]);
-            }
             console.log(data);
 
             const path = 'http://localhost:5000/generate';
@@ -179,15 +191,10 @@ export default {
         whatever: function () {
             console.log('whatever');
         }
-    },
-    mounted() {
-        for (let i = 0; i < this.qbit_count; i++) {
-            this.update_percent_label(i);
-        }
     }
 }
 
-var places = [
+const DEFAULT_PLACES = [
     "A rooftop bar",
     "A comedy club",
     "A concert venue",
