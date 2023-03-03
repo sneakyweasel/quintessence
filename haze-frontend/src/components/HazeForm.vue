@@ -172,7 +172,6 @@ export default {
             // Simple POST request with a JSON body using axios
             let data = {
                 computer: this.quantum_computer,
-                qbit_count: this.qbit_count,
                 places: this.places,
             };
             console.log(data);

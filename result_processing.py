@@ -23,6 +23,22 @@ def convert_binary_to_index(binary_string):
     raise ValueError('Binary string must contain at least one 1')
 
 
+def convert_index_to_binary(index, qbit_count):
+    ''' Convert index to binary string (e.g. 3 -> '01000' and 4 -> '10000') '''
+    zero_str = "0" * qbit_count
+    zero_str = zero_str[:index] + "1" + zero_str[index + 1:]
+    return zero_str[::-1]
+
+
+def add_missing_results(result, qbit_count):
+    ''' Add missing results to the result dictionary '''
+    for i in range(qbit_count):
+        binary_string = convert_index_to_binary(i, qbit_count)
+        if binary_string not in result:
+            result[binary_string] = 0
+    return result
+
+
 def order_results(result):
     ''' Order results using the original index '''
     ordered_result = []
