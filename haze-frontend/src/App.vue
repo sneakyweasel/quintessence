@@ -9,7 +9,7 @@
             <!-- Quantum computer form card -->
             <div class="card mt-5">
                 <div class="card-body">
-                    <h5 class="card-title">Quantum computer</h5>
+                    <h5 class="card-title">Quantum parameters</h5>
 
                     <!-- Quantum computer -->
                     <div class="row mt-3">
@@ -32,7 +32,7 @@
                     <div class="row mt-3">
                         <div class="col-5">
                             <label for="qbit_count_range" class="form-label">
-                                <span class="">Number of qbits:</span>
+                                <span class="">Number of qbits</span>
                             </label>
                         </div>
                         <div class="col-5">
@@ -50,7 +50,7 @@
                     <div class="row mt-3">
                         <div class="col-5">
                             <label for="qbit_count_range" class="form-label">
-                                <span class="">Number of steps:</span>
+                                <span class="">Number of steps</span>
                             </label>
                         </div>
                         <div class="col-5">
@@ -62,8 +62,24 @@
                                 {{ steps_count }}
                             </span>
                         </div>
-
                     </div>
+
+                    <!-- Toggle AI requests -->
+                    <div class="row mt-3">
+                        <div class="col-5">
+                            <label for="qbit_count_range" class="form-label">
+                                <span class="">Activate AI</span>
+                            </label>
+                        </div>
+                        <div class="col-5">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" v-model="activate_ai" id="ai_toggle">
+                            </div>
+                        </div>
+                        <div class="col-2">
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -119,6 +135,19 @@
             </div>
         </form>
 
+        <!-- Quantum circuit image display -->
+        <div class="card mt-4" v-if="display_quantum_results">
+
+            <div class="card-body">
+                <h5 class="card-title">Quantum circuit</h5>
+                <p class="card-text">
+                    We generated a quantum circuit to simulate your quantum walk. The circuit is made up of a sucession
+                    of trotter steps with the values you provided.
+                </p>
+                <img src="circuit.png" class="img-fluid">
+            </div>
+        </div>
+
         <!-- Quantum circuit toggle -->
         <div class="card mt-4" v-if="display_quantum_results">
             <div class="card-body">
@@ -128,17 +157,17 @@
                 </p>
 
                 <!-- Raw results -->
-                <div class="bg-light">
-                    <p>
-                        Raw quantum results: {{ raw_results }}
-                    </p>
-                    <p>
-                        Error percentage: {{ (error_percentage * 100).toFixed(2) }} %
-                    </p>
-                    <p>
-                        Entropy measure: {{ (entropy * 100).toFixed(2) }} % - {{ entropy_word }}
-                    </p>
-                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        Raw results: {{ raw_results }}
+                    </li>
+                    <li class="list-group-item">
+                        Error percentage: {{ (error_percentage * 100).toFixed(2) }}%
+                    </li>
+                    <li class="list-group-item">
+                        Entropy measure: {{ (entropy * 100).toFixed(2) }}% - {{ entropy_word }}
+                    </li>
+                </ul>
 
                 <!-- Processed results -->
                 <div v-for="[place, prob], i in results" :key="'qbit_result_' + i" class="row mt-2">
@@ -158,7 +187,7 @@
                     <!-- Probability percentage display -->
                     <div class="col-2 mt-1">
                         <span :id="'percent_label_' + i" class="badge rounded-pill bg-primary">
-                            {{ (prob * 100).toFixed(2) }} %
+                            {{ (prob * 100).toFixed(2) }}%
                         </span>
                     </div>
 
@@ -166,26 +195,34 @@
             </div>
         </div>
 
-        <!-- AI toggle -->
+        <!-- GPT3 prompt -->
         <div class="card mt-4" v-if="display_quantum_results">
             <div class="card-body">
-                <h5 class="card-title">AI results</h5>
+                <h5 class="card-title">AI prompt</h5>
                 <p class="card-text">
-                    Here are the generated prompt and the AI's response.
+                    We converted the quantum results to a prompt for GPT3 to generate a story.
                 </p>
-
-                <!-- GPT3 prompt -->
                 <div class="row mt-3">
                     <p>
-                        GPT3 prompt: {{ gpt3_prompt }}
+                        {{ gpt3_prompt }}
                     </p>
                 </div>
+            </div>
+        </div>
 
-                <!-- GPT3 response -->
+        <!-- GPT3 response -->
+        <div class="card mt-4" v-if="display_quantum_results && activate_ai">
+            <div class="card-body">
+                <h5 class="card-title">AI response</h5>
+                <p class="card-text">
+                    Here is the storyline generated by GPT3.
+                </p>
                 <div class="row mt-3">
-                    <p v-for="image_prompt, i in image_prompts" :key="'row' + i" class="row mt-2">
-                        {{ image_prompt }}
-                    </p>
+                    <ul v-for="image_prompt, i in image_prompts" :key="'row' + i" class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            {{ image_prompt }}
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -206,6 +243,7 @@ export default {
             steps_count: 3,
             quantum_computer: 'ionq',
             places: [],
+            activate_ai: false,
             // Quantum computer results
             results: [],
             raw_results: [],
@@ -266,8 +304,9 @@ export default {
                 computer: this.quantum_computer,
                 steps: this.steps_count,
                 places: this.places,
+                activate_ai: this.activate_ai,
             };
-
+            console.log(data);
             const path = 'http://localhost:5000/generate';
             axios.post(path, data)
                 .then(response => {

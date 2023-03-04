@@ -2,8 +2,8 @@
 import openai
 import requests
 
-VERBOSE = False
-OPENAI_API_KEY = "123456"
+OPENAI_API_KEY = "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"
+# OPENAI_API_KEY = "123456"
 
 
 def retrieve_gpt3_response(prompt):
@@ -33,9 +33,10 @@ def convert_storyline_to_image_prompts(storyline):
 
 
 def retrieve_image_from_dalle(image_prompt):
-    ''' Method to create images from the GPT-3 response.'''
+    ''' Method to create images from the DALL-E API.'''
+    openai.api_key = OPENAI_API_KEY
 
-    # Retrieve DALLE image
+    # Send the prompt to DALL-E
     response = openai.Image.create(
         prompt=image_prompt,
         n=1,

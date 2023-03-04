@@ -23,21 +23,25 @@ def generate():
     if request.method == 'POST':
         # Retrieve data
         post_data = request.get_json()
-        # quantum_computer = post_data.get('quantum_computer')
+        quantum_computer = post_data.get('quantum_computer')
         steps = post_data.get('steps')
         places = post_data.get('places')
+        activate_ai = post_data.get('activate_ai')
         qbit_count = len(places)
 
         # Create quantum circuit
         quantum_circuit = generate_quantum_circuit(places, steps)
 
-        # Draw circuit
-        # terminal_draw = str(quantum_circuit.draw(output='text', fold=1000))
+        # Draw circuit and save to frontend public file
+        # Error: breaks when running on server
         # quantum_circuit.draw(
-        #     output='mpl', filename='./circuit.png', vertical_compression=True)
+        #   output='mpl',
+        #   filename='../haze-frontend/public/circuit.png',
+        #   vertical_compression=True
+        # )
 
-        # Perform quantum computation
-        simulator_results = run_quantum_circuit(quantum_circuit)
+        # Run quantum computation
+        simulator_results = run_quantum_circuit(quantum_circuit, quantum_computer)
         print(simulator_results)
 
         # Process results
@@ -55,11 +59,13 @@ def generate():
         # Create GPT3 prompt
         gpt3_prompt = create_gpt3_prompt(readable_results, entropy_measure)
 
-        # Retrieve GPT3 response
-        gpt3_response = retrieve_gpt3_response(gpt3_prompt)
-
-        # Split GPT3 response into steps
-        image_prompts = convert_storyline_to_image_prompts(gpt3_response)
+        # Get GPT3 response and create image prompts
+        if activate_ai:
+            gpt3_response = retrieve_gpt3_response(gpt3_prompt)
+            image_prompts = convert_storyline_to_image_prompts(gpt3_response)
+        else:
+            gpt3_response = ""
+            image_prompts = []
 
         # Send response
         response_object = {'status': 'success'}

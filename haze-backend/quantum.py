@@ -71,7 +71,7 @@ def generate_quantum_circuit(places, steps):
     return qc_final
 
 
-def run_quantum_circuit(quantum_circuit):
+def run_quantum_circuit(quantum_circuit, quantum_computer):
     ''' Run the quantum circuit on the IonQ quantum computer. '''
     quantum_backend = Aer.get_backend('qasm_simulator')
     transpiled_circuit = transpile(quantum_circuit, quantum_backend)

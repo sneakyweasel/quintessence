@@ -39,14 +39,15 @@ You'll need to provide your own API keys as env variables in quantum.py and open
 - OPENAI_API_KEY = "123456"
 - QUANTUM_API_KEY = "123456"
 
-We provide a pipenv file to install all the dependencies.
+We provide a pipenv file to install all the python dependencies.
 
 ```bash
+cd haze-backend
 pipenv install
 pipenv shell
 ```
 
-To install the vue frontend, run those commands.
+To install the VueJS frontend, run those commands.
 
 ```bash
 cd haze-frontend
@@ -59,6 +60,7 @@ yarn serve
 To run "Quantum Haze" you need to run the following command:
 
 ```bash
+cd haze-backend
 python server.py
 ```
 
@@ -81,8 +83,7 @@ yarn serve
 
 ## Todos
 
-- [ ] Package the vue frontend into the python flask server
-- [ ] Move vueform into App.vue
+- [ ] Deploy code to a server
 - [ ] Add more quantum circuits variables
 - [ ] Display polar graph of quantum circuit results
 - [ ] Generate more interesting storylines
