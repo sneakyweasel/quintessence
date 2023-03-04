@@ -34,7 +34,7 @@ Mr. Quanta awoke in a rooftop garden, surrounded by lush foliage and vibrant blo
 
 ## Setup
 
-You'll need to provide your own API keys as env variables at the beginning on main.py
+You'll need to provide your own API keys as env variables in quantum.py and openai.py. The variables are:
 
 - OPENAI_API_KEY = "123456"
 - QUANTUM_API_KEY = "123456"
@@ -59,7 +59,7 @@ yarn serve
 To run "Quantum Haze" you need to run the following command:
 
 ```bash
-python main.py
+python server.py
 ```
 
 ## Run frontend client
@@ -81,6 +81,10 @@ yarn serve
 
 ## Todos
 
-- JSON is not ordered so the list of places is not ordered.
-- Progressive loading of the story since the computation might take a while.
-- Resend if the API are down.
+- [ ] Package the vue frontend into the python flask server
+- [ ] Move vueform into App.vue
+- [ ] Add more quantum circuits variables
+- [ ] Display polar graph of quantum circuit results
+- [ ] Generate more interesting storylines
+- [ ] Provide better explanation of what we are doing
+- [ ] Display generated images from the storyline steps
