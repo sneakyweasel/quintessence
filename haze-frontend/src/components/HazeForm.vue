@@ -82,10 +82,10 @@
         </div>
 
         <!-- Submit button -->
-        <div class="row mt-4" v-if="!display_quantum_circuit">
+        <div class="row mt-4" v-if="!display_quantum_results">
             <div class="col-4"></div>
             <div class="col-4">
-                <button id="submit_button" class="btn btn-lg" type="submit" @click.prevent="submit_form">
+                <button id="submit_button" class="btn btn-lg w-100" type="submit" @click.prevent="submit_form">
                     Remember
                 </button>
             </div>
@@ -94,24 +94,76 @@
     </form>
 
     <!-- Quantum circuit toggle -->
-    <div class="card mt-4" v-if="display_quantum_circuit">
+    <div class="card mt-4" v-if="display_quantum_results">
         <div class="card-body">
-            <h5 class="card-title">Quantum computer response</h5>
+            <h5 class="card-title">Quantum computer results</h5>
             <p class="card-text">
-                The quantum computer has been asked to generate a random quantum walk from your input parameters.
+                Here are the results from the quantum computer. The probability of each place is shown as a percentage.
             </p>
-            <div v-for="[key, value], i in Object.entries(quantum_result)" :key="'qbit_result_' + i">
+
+            <!-- Raw results -->
+            <div class="bg-light">
                 <p>
-                    <span class="badge rounded-pill bg-primary">
-                        {{ key }}
+                    Raw quantum results: {{ raw_results }}
+                </p>
+                <p>
+                    Error percentage: {{ (error_percentage * 100).toFixed(2) }} %
+                </p>
+                <p>
+                    Entropy measure: {{ (entropy * 100).toFixed(2) }} % - {{ entropy_word }}
+                </p>
+            </div>
+
+            <!-- Processed results -->
+            <div v-for="[place, prob], i in results" :key="'qbit_result_' + i" class="row mt-2">
+
+                <!-- Place text input -->
+                <div class="col-5">
+                    <div class="input-group">
+                        <input :id="'result_place_' + i" type="text" class="form-control" :value="place"
+                            :key="'result_place' + i" disabled>
+                    </div>
+                </div>
+                <!-- Probability slider input -->
+                <div class="col-5 mt-2">
+                    <input :id="'result_prob' + i" type="range" class="form-range" :value="prob * 100" min="0" max="100"
+                        step="10" :key="'result_prob' + i" disabled>
+                </div>
+                <!-- Probability percentage display -->
+                <div class="col-2 mt-1">
+                    <span :id="'percent_label_' + i" class="badge rounded-pill bg-primary">
+                        {{ (prob * 100).toFixed(2) }} %
                     </span>
-                    <span class="badge rounded-pill bg-secondary">
-                        {{ value }}
-                    </span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- AI toggle -->
+    <div class="card mt-4" v-if="display_quantum_results">
+        <div class="card-body">
+            <h5 class="card-title">AI results</h5>
+            <p class="card-text">
+                Here are the generated prompt and the AI's response.
+            </p>
+
+            <!-- GPT3 prompt -->
+            <div class="row mt-3">
+                <p>
+                    GPT3 prompt: {{ gpt3_prompt }}
+                </p>
+            </div>
+
+            <!-- GPT3 response -->
+            <div class="row mt-3">
+                <p v-for="image_prompt, i in image_prompts" :key="'row' + i" class="row mt-2">
+                    {{ image_prompt }}
                 </p>
             </div>
         </div>
     </div>
+
     <br>
     <br>
 </template>
@@ -122,13 +174,24 @@ import axios from "axios";
 export default {
     data() {
         return {
+            // Form
             qbit_count: 5,
             quantum_computer: 'ionq',
             places: [],
-            display_quantum_circuit: false,
+            // Quantum computer results
+            results: [],
+            raw_results: [],
+            error_percentage: 0,
+            entropy: 0,
+            entropy_word: '',
+            gpt3_prompt: '',
+            gpt3_response: '',
+            image_prompts: [],
+            // UI
+            display_quantum_results: false,
+            display_ia: false,
             display_polar_plot: false,
             display_story: false,
-            quantum_result: null,
         };
     },
     created() {
@@ -174,57 +237,59 @@ export default {
                 computer: this.quantum_computer,
                 places: this.places,
             };
-            console.log(data);
 
             const path = 'http://localhost:5000/generate';
             axios.post(path, data)
                 .then(response => {
-                    this.quantum_result = response.data.message;
-                    console.log(response.data.message);
-                    this.display_quantum_circuit = true;
+                    this.results = response.data.message.results;
+                    this.raw_results = response.data.message.raw_results;
+                    this.error_percentage = response.data.message.error_percentage;
+                    this.entropy = response.data.message.entropy;
+                    this.entropy_word = response.data.message.entropy_word;
+                    this.gpt3_prompt = response.data.message.gpt3_prompt;
+                    this.gpt3_response = response.data.message.gpt3_response;
+                    this.image_prompts = response.data.message.image_prompts;
+                    this.display_quantum_results = true;
                 })
                 .catch(err => {
                     alert('something went wrong! ' + err);
                 })
         },
-        whatever: function () {
-            console.log('whatever');
-        }
     }
 }
 
 const DEFAULT_PLACES = [
-    "A rooftop bar",
-    "A comedy club",
-    "A concert venue",
-    "A music festival",
-    "A street fair",
-    "A bowling alley",
-    "A casino",
-    "A sports stadium",
-    "A karaoke bar",
-    "A restaurant with live music",
-    "A rooftop terrace",
-    "A beach bonfire",
-    "A drive-in movie theater",
-    "A laser tag arena",
-    "A trampoline park",
-    "An escape room",
-    "A miniature golf course",
-    "A rock climbing gym",
-    "A go-kart track",
-    "A bowling alley",
-    "A comedy club",
-    "A concert hall",
-    "A music festival",
-    "A street festival",
-    "A rooftop pool",
-    "A rooftop garden",
-    "A lounge",
-    "A dance club",
-    "A public square",
-    "A rooftop yoga class"];
-
+    "Rooftop bar",
+    "Comedy club",
+    "Concert venue",
+    "Music festival",
+    "Street fair",
+    "Bowling alley",
+    "Casino",
+    "Sports stadium",
+    "Karaoke bar",
+    "Restaurant with live music",
+    "Rooftop terrace",
+    "Beach bonfire",
+    "Drive-in movie theater",
+    "Laser tag arena",
+    "Trampoline park",
+    "Escape room",
+    "Miniature golf course",
+    "Rock climbing gym",
+    "Go-kart track",
+    "Bowling alley",
+    "Comedy club",
+    "Concert hall",
+    "Music festival",
+    "Street festival",
+    "Rooftop pool",
+    "Rooftop garden",
+    "Lounge",
+    "Dance club",
+    "Public square",
+    "Rooftop yoga class"
+];
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

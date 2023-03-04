@@ -71,8 +71,9 @@ def convert_probability_to_likelyhood(probability):
         raise ValueError('Probability must be between 0 and 1.')
 
 
-def compute_entropy(probabilities):
+def compute_entropy(results):
     '''Compute the normed entropy of the probability distribution.'''
+    probabilities = [line[1] for line in results]
     if isinstance(probabilities, list):
         probabilities = np.array(probabilities)
     scaled = -probabilities * np.log(probabilities)
@@ -97,3 +98,40 @@ def convert_entropy_to_words(normed_entropy):
         return "chaotic"
     else:
         raise ValueError('Entropy must be between 0 and 1.')
+
+
+def create_gpt3_prompt(results, entropy):
+    '''Method to create the GPT-3 prompt.'''
+
+    # Initial place
+    initial_place = results[0][0]
+
+    # Convert numerical values to words
+    entropy_adjective = convert_entropy_to_words(entropy)
+
+    # Sort top 3 results
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:3]
+    print(results)
+
+    # Convert probabilities to readable GPT3 strings
+    worded_results = []
+    for result in results:
+        likelyhood = convert_probability_to_likelyhood(result[1])
+        place = result[0].lower()
+        worded_results.append(likelyhood + place)
+
+    prompt = '''Mr. Quanta cannot remember how he got here. Tell the story of him trying to
+                remember how he got here in 3 steps and be descriptive.
+                He only remembers a few things, and considers each possible place one at a time. 
+                Use grandiose language. Embelish everything and paint a picture with words. 
+                Make the descriptions drip with imagery. '''
+    prompt += f"He had a { entropy_adjective } time before "
+    prompt += f"awakening at the { initial_place.lower() }, and before that "
+
+    # Append probability strings in the prompt
+    for worded_result in worded_results:
+        prompt += worded_result + ', '
+    prompt += "."
+
+    return prompt
