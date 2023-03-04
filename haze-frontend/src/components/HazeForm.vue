@@ -40,6 +40,25 @@
                         </span>
                     </div>
                 </div>
+
+                <!-- Trotter steps -->
+                <div class="row mt-3">
+                    <div class="col-5">
+                        <label for="qbit_count_range" class="form-label">
+                            <span class="">Number of steps:</span>
+                        </label>
+                    </div>
+                    <div class="col-5">
+                        <input id="steps_range" v-model.number="steps_count" type="range" class="form-range" min="2"
+                            max="12" step="1">
+                    </div>
+                    <div class="col-2">
+                        <span class="badge rounded-pill bg-primary">
+                            {{ steps_count }}
+                        </span>
+                    </div>
+
+                </div>
             </div>
         </div>
 
@@ -176,6 +195,7 @@ export default {
         return {
             // Form
             qbit_count: 5,
+            steps_count: 3,
             quantum_computer: 'ionq',
             places: [],
             // Quantum computer results
@@ -198,6 +218,7 @@ export default {
         for (let i = 0; i < this.qbit_count; i++) {
             this.places.push(this.create_new_place());
         }
+        this.places[0][0] = 'Home';
     },
     methods: {
         get_random_place: function () {
@@ -235,6 +256,7 @@ export default {
             // Simple POST request with a JSON body using axios
             let data = {
                 computer: this.quantum_computer,
+                steps: this.steps_count,
                 places: this.places,
             };
 

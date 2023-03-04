@@ -3,7 +3,7 @@ import openai
 import requests
 
 VERBOSE = False
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "123456"
 
 
 def retrieve_gpt3_response(prompt):
@@ -17,8 +17,6 @@ def retrieve_gpt3_response(prompt):
         temperature=0,
         max_tokens=400
     )
-    print(response)
-
     return response.choices[0].text
 
 

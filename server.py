@@ -24,11 +24,12 @@ def generate():
         # Retrieve data
         post_data = request.get_json()
         # quantum_computer = post_data.get('quantum_computer')
+        steps = post_data.get('steps')
         places = post_data.get('places')
         qbit_count = len(places)
 
         # Create quantum circuit
-        quantum_circuit = generate_quantum_circuit(json_data=post_data)
+        quantum_circuit = generate_quantum_circuit(places, steps)
 
         # Draw circuit
         # terminal_draw = str(quantum_circuit.draw(output='text', fold=1000))

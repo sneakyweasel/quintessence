@@ -88,13 +88,13 @@ def convert_entropy_to_words(normed_entropy):
     '''Convert the entropy value to a word.'''
     if 0 <= normed_entropy < 0.1:
         return "uneventful"
-    elif 0.1 <= normed_entropy < 0.4:
+    elif 0.1 <= normed_entropy < 0.2:
         return "boring"
-    elif 0.4 <= normed_entropy < 0.6:
+    elif 0.2 <= normed_entropy < 0.3:
         return "regular"
-    elif 0.6 <= normed_entropy < 0.9:
+    elif 0.3 <= normed_entropy < 0.5:
         return "exciting"
-    elif 0.9 <= normed_entropy < 1.0:
+    elif 0.5 <= normed_entropy < 1.0:
         return "chaotic"
     else:
         raise ValueError('Entropy must be between 0 and 1.')

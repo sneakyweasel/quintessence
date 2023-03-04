@@ -11,18 +11,17 @@ np.seterr(divide='ignore')
 QUANTUM_API_KEY = "123456"
 
 
-def generate_quantum_circuit(json_data):
+def generate_quantum_circuit(places, steps):
     '''Generate the quantum circuit from the JSON data.'''
 
     # Retrieve probabilities
     probabilities = []
-    for place in json_data['places']:
+    for place in places:
         probabilities.append(place[1])
 
     # Quantum circuit variables
     start = 0
     probabilities[start] = 0
-    steps = 1
     j_val = np.pi / 10
 
     # Define Qiskit parameters
