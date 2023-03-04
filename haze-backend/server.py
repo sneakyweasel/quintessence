@@ -27,21 +27,14 @@ def generate():
         steps = post_data.get('steps')
         places = post_data.get('places')
         activate_ai = post_data.get('activate_ai')
+        activate_noise = post_data.get('activate_noise')
         qbit_count = len(places)
 
         # Create quantum circuit
         quantum_circuit = generate_quantum_circuit(places, steps)
 
-        # Draw circuit and save to frontend public file
-        # Error: breaks when running on server
-        # quantum_circuit.draw(
-        #   output='mpl',
-        #   filename='../haze-frontend/public/circuit.png',
-        #   vertical_compression=True
-        # )
-
         # Run quantum computation
-        simulator_results = run_quantum_circuit(quantum_circuit, quantum_computer)
+        simulator_results = run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise)
         print(simulator_results)
 
         # Process results

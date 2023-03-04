@@ -1,7 +1,8 @@
 '''Quantum circuit generation and execution.'''
 import numpy as np
-from qiskit import Aer, QuantumCircuit, transpile
+from qiskit import Aer, QuantumCircuit, execute
 from qiskit.circuit import Parameter
+from qiskit_aer.noise import depolarizing_error, NoiseModel
 # from qiskit_ionq import IonQProvider  # pylint: disable=import-error
 
 # Ignore divide by zero errors in console
@@ -71,9 +72,27 @@ def generate_quantum_circuit(places, steps):
     return qc_final
 
 
-def run_quantum_circuit(quantum_circuit, quantum_computer):
+def run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise=False):
     ''' Run the quantum circuit on the IonQ quantum computer. '''
-    quantum_backend = Aer.get_backend('qasm_simulator')
-    transpiled_circuit = transpile(quantum_circuit, quantum_backend)
-    job = quantum_backend.run(transpiled_circuit)
-    return job.result().get_counts()
+    backend = Aer.get_backend('aer_simulator')
+
+    # Get coupling map from backend
+    coupling_map = backend.configuration().coupling_map
+
+    # Create an empty noise model
+    noise_model = NoiseModel()
+
+    # Add depolarizing error to all single qubit u1, u2, u3 gates
+    error = depolarizing_error(0.001, 1)
+    noise_model.add_all_qubit_quantum_error(error, ['u1', 'u2', 'u3'])
+
+    # Get basis gates from noise model
+    basis_gates = noise_model.basis_gates
+
+    # Run quantum circuit
+    result = execute(quantum_circuit, backend,
+                 coupling_map=coupling_map,
+                 basis_gates=basis_gates,
+                 noise_model=noise_model).result()
+    
+    return result.get_counts()

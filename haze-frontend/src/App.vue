@@ -20,12 +20,27 @@
                         </div>
                         <div class="col-5">
                             <select id="computer_select" class="form-select" v-model="quantum_computer">
-                                <option value="ionq" selected>IonQ</option>
-                                <option value="ibmq">IBMQ 'simulator'</option>
-                                <option value="pasqal">Pasqal 'simulator'</option>
+                                <option value="ibmq" selected>IBMQ simulator</option>
+                                <option value="ionq">IonQ</option>
                             </select>
                         </div>
                         <div class="col-2"></div>
+                    </div>
+
+                    <!-- Toggle quantum simulator noise -->
+                    <div class="row mt-3">
+                        <div class="col-5">
+                            <label for="qbit_count_range" class="form-label">
+                                <span class="">Activate quantum noise</span>
+                            </label>
+                        </div>
+                        <div class="col-5">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" v-model="activate_noise" id="noise_toggle">
+                            </div>
+                        </div>
+                        <div class="col-2">
+                        </div>
                     </div>
 
                     <!-- Number of qbits -->
@@ -241,9 +256,10 @@ export default {
             // Form
             qbit_count: 5,
             steps_count: 3,
-            quantum_computer: 'ionq',
+            quantum_computer: 'ibmq',
             places: [],
             activate_ai: false,
+            activate_noise: true,
             // Quantum computer results
             results: [],
             raw_results: [],
@@ -306,7 +322,6 @@ export default {
                 places: this.places,
                 activate_ai: this.activate_ai,
             };
-            console.log(data);
             const path = 'http://localhost:5000/generate';
             axios.post(path, data)
                 .then(response => {
