@@ -10,12 +10,16 @@
             <div class="card mt-5">
                 <div class="card-body">
                     <h5 class="card-title">Quantum parameters</h5>
+                    <p class="card-text">
+                        Those parameters will change the way the quantum computer will generate the comic strip. Leave as
+                        default if you don't know what you are doing.
+                    </p>
 
                     <!-- Quantum computer -->
                     <div class="row mt-3">
                         <div class="col-5">
-                            <label for="computer_select" class="form-label">
-                                <span class="">Select quantum computer</span>
+                            <label for="computer_select" class="form-label mt-1">
+                                <span class="">Select quantum backend</span>
                             </label>
                         </div>
                         <div class="col-5">
@@ -27,24 +31,8 @@
                         <div class="col-2"></div>
                     </div>
 
-                    <!-- Toggle quantum simulator noise -->
-                    <div class="row mt-3">
-                        <div class="col-5">
-                            <label for="qbit_count_range" class="form-label">
-                                <span class="">Activate quantum noise</span>
-                            </label>
-                        </div>
-                        <div class="col-5">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" v-model="activate_noise" id="noise_toggle">
-                            </div>
-                        </div>
-                        <div class="col-2">
-                        </div>
-                    </div>
-
                     <!-- Number of qbits -->
-                    <div class="row mt-3">
+                    <div class="row mt-2">
                         <div class="col-5">
                             <label for="qbit_count_range" class="form-label">
                                 <span class="">Number of qbits</span>
@@ -62,10 +50,10 @@
                     </div>
 
                     <!-- Trotter steps -->
-                    <div class="row mt-3">
+                    <div class="row mt-2">
                         <div class="col-5">
                             <label for="qbit_count_range" class="form-label">
-                                <span class="">Number of steps</span>
+                                <span class="">Number of trotter steps</span>
                             </label>
                         </div>
                         <div class="col-5">
@@ -80,10 +68,10 @@
                     </div>
 
                     <!-- J values -->
-                    <div class="row mt-3">
+                    <div class="row mt-2">
                         <div class="col-5">
                             <label for="jval_range" class="form-label">
-                                <span class="">J values</span>
+                                <span class="">Quantum circuit J values</span>
                             </label>
                         </div>
                         <div class="col-5">
@@ -97,8 +85,24 @@
                         </div>
                     </div>
 
+                    <!-- Toggle quantum simulator noise -->
+                    <div class="row mt-2">
+                        <div class="col-5">
+                            <label for="qbit_count_range" class="form-label">
+                                <span class="">Activate quantum noise</span>
+                            </label>
+                        </div>
+                        <div class="col-5">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" v-model="activate_noise" id="noise_toggle">
+                            </div>
+                        </div>
+                        <div class="col-2">
+                        </div>
+                    </div>
+
                     <!-- Toggle AI requests -->
-                    <div class="row mt-3">
+                    <div class="row mt-2">
                         <div class="col-5">
                             <label for="qbit_count_range" class="form-label">
                                 <span class="">Activate AI</span>
@@ -128,7 +132,7 @@
                     </p>
 
                     <!-- Dynamic input - decrease index to start at 0 -->
-                    <div v-for="place, i in places" :key="'row' + i" class="row mt-2">
+                    <div v-for="place, i in places" :key="'row' + i" class="row mt-1">
 
                         <!-- Place text input -->
                         <div class="col-5">
@@ -141,15 +145,24 @@
                             </div>
                         </div>
                         <!-- Probability slider input -->
-                        <div class="col-5 mt-2">
+                        <div class="col-4 mt-2">
                             <input :id="'prob' + i" type="range" class="form-range" :value="place[1]" min="0" max="100"
                                 step="10" :key="'prob' + i" @input.prevent="update_percent_label(i)">
                         </div>
-                        <!-- Probability percentage display -->
-                        <div class="col-2 mt-1">
-                            <span :id="'percent_label_' + i" class="badge rounded-pill bg-primary">
-                                {{ place[1] }} %
+
+                        <!-- Probability raw value display -->
+                        <div class="col-1 mt-1">
+                            <span :id="'value_label_' + i" class="badge rounded-pill bg-primary">
+                                {{ place[1] }}
                             </span>
+                        </div>
+
+                        <!-- Probability percentage display -->
+                        <div class="col-1 mt-1">
+                            <span :id="'percent_label_' + i" class="badge rounded-pill bg-secondary">
+                                {{ place[2].toFixed(1) }} %
+                            </span>
+
                         </div>
 
                     </div>
@@ -307,20 +320,20 @@ export default {
                 scale: {
                     r: {
                         min: 0,
-                        max: 100,
+                        // max: 100,
                         beginAtZero: true,
                         angleLines: {
                             display: false
                         },
                         ticks: {
                             display: false,
-                            stepSize: 10
+                            // stepSize: 10
                         },
                     }
                 },
                 elements: {
                     line: {
-                        borderWidth: 5
+                        borderWidth: 4
                     }
                 }
             }
@@ -332,13 +345,16 @@ export default {
         }
         this.places[0][0] = 'Home';
     },
+    mounted() {
+        this.normalize_percentages();
+    },
     computed: {
         chartData() {
             return {
                 labels: this.places.map(p => p[0]),
                 datasets: [{
-                    label: 'My First Dataset',
-                    data: this.places.map(p => p[1]),
+                    label: 'Input Dataset',
+                    data: this.places.map(p => p[2]),
                     fill: true,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgb(255, 99, 132)',
@@ -347,7 +363,7 @@ export default {
                     pointHoverBackgroundColor: '#fff',
                     pointHoverBorderColor: 'rgb(255, 99, 132)'
                 }, {
-                    label: 'My Second Dataset',
+                    label: 'Result Dataset',
                     data: this.results.map(p => p[1] * 100),
                     fill: true,
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -359,31 +375,13 @@ export default {
                 }]
             };
         },
-        resultData() {
-            return {
-                labels: this.places.map(p => p[0]),
-                datasets: [{
-                    label: 'My First Dataset',
-                    data: this.places.map(p => p[1]),
-                    fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
-                }, {
-                    label: 'My Second Dataset',
-                    data: this.results.map(p => p[1] * 100),
-                    fill: true,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    pointBackgroundColor: 'rgb(54, 162, 235)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(54, 162, 235)'
-                }]
-            };
+        total_probability() {
+            let total = 0;
+            for (let i = 0; i < this.places.length; i++) {
+                const raw = this.places[i][1];
+                total += raw;
+            }
+            return total;
         },
     },
     methods: {
@@ -394,9 +392,12 @@ export default {
             return Math.floor(Math.random() * 10) * 10;
         },
         create_new_place: function () {
+            let value = this.get_random_value();
+            let percent = value / this.total_probability * 100;
             return [
                 this.get_random_place(),
-                this.get_random_value(),
+                value,
+                percent
             ];
         },
         change_qbit_count: function () {
@@ -408,7 +409,6 @@ export default {
                 }
             }
             this.chartData.labels = this.places.map(p => p[0]);
-            this.chartData.datasets[0].data = this.places.map(p => p[1]);
         },
         update_place_input: function (i) {
             const place = this.get_random_place();
@@ -416,9 +416,23 @@ export default {
             document.getElementById('place' + i).value = place;
         },
         update_percent_label: function (i) {
-            const percent = document.getElementById('prob' + i).value;
-            this.places[i][1] = parseFloat(percent);
-            document.getElementById('percent_label_' + i).innerHTML = percent + '%';
+            const raw_value = document.getElementById('prob' + i).value;
+            this.places[i][1] = parseFloat(raw_value);
+            this.normalize_percentages();
+        },
+        normalize_percentages() {
+            let total = 0;
+            for (let i = 0; i < this.places.length; i++) {
+                const raw = this.places[i][1];
+                total += raw;
+            }
+            for (let i = 0; i < this.places.length; i++) {
+                const raw = this.places[i][1];
+                const percent = raw / total * 100;
+                this.places[i][2] = percent;
+                document.getElementById('value_label_' + i).innerHTML = raw;
+                document.getElementById('percent_label_' + i).innerHTML = percent + '%';
+            }
         },
         submit_form: function (event) {
             event.preventDefault();
