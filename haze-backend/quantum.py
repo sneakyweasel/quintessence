@@ -83,7 +83,10 @@ def run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise=False)
     noise_model = NoiseModel()
 
     # Add depolarizing error to all single qubit u1, u2, u3 gates
-    error = depolarizing_error(0.001, 1)
+    if activate_noise:
+        error = depolarizing_error(0.001, 1)
+    else:
+        error = depolarizing_error(0, 1)
     noise_model.add_all_qubit_quantum_error(error, ['u1', 'u2', 'u3'])
 
     # Get basis gates from noise model

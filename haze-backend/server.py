@@ -35,7 +35,6 @@ def generate():
 
         # Run quantum computation
         simulator_results = run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise)
-        print(simulator_results)
 
         # Process results
         total_shots = sum(simulator_results.values())

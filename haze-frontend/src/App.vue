@@ -156,8 +156,8 @@
             <div class="card-body">
                 <h5 class="card-title">Quantum circuit</h5>
                 <p class="card-text">
-                    We generated a quantum circuit to simulate your quantum walk. The circuit is made up of a sucession
-                    of trotter steps with the values you provided.
+                    We generated a quantum circuit similar to the one below to simulate your quantum walk. The circuit is
+                    made up of a sucession of trotter steps with the values you provided.
                 </p>
                 <img src="circuit.png" class="img-fluid">
             </div>
@@ -174,13 +174,13 @@
                 <!-- Raw results -->
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        Raw results: {{ raw_results }}
+                        <b>Raw results:</b> {{ raw_results }}
                     </li>
                     <li class="list-group-item">
-                        Error percentage: {{ (error_percentage * 100).toFixed(2) }}%
+                        <b>Error percentage:</b> {{ (error_percentage * 100).toFixed(2) }}%
                     </li>
                     <li class="list-group-item">
-                        Entropy measure: {{ (entropy * 100).toFixed(2) }}% - {{ entropy_word }}
+                        <b>Entropy measure:</b> {{ (entropy * 100).toFixed(2) }}% ({{ entropy_word }})
                     </li>
                 </ul>
 
@@ -321,6 +321,7 @@ export default {
                 steps: this.steps_count,
                 places: this.places,
                 activate_ai: this.activate_ai,
+                activate_noise: this.activate_noise,
             };
             const path = 'http://localhost:5000/generate';
             axios.post(path, data)
