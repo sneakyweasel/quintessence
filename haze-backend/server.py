@@ -25,18 +25,20 @@ def generate():
     if request.method == 'POST':
         # Retrieve data
         post_data = request.get_json()
-        quantum_computer = post_data.get('quantum_computer')
+        quantum_backend = post_data.get('quantum_backend')
         steps = post_data.get('steps')
+        jval = post_data.get('jval')
         places = post_data.get('places')
         activate_ai = post_data.get('activate_ai')
         activate_noise = post_data.get('activate_noise')
         qbit_count = len(places)
 
         # Create quantum circuit
-        quantum_circuit = generate_quantum_circuit(places, steps)
+        quantum_circuit = generate_quantum_circuit(places, steps, jval)
 
         # Run quantum computation
-        simulator_results = run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise)
+        print(quantum_backend)
+        simulator_results = run_quantum_circuit(quantum_circuit, quantum_backend, activate_noise)
 
         # Process results
         total_shots = sum(simulator_results.values())

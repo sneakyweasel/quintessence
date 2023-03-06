@@ -19,9 +19,9 @@
                             </label>
                         </div>
                         <div class="col-5">
-                            <select id="computer_select" class="form-select" v-model="quantum_computer">
+                            <select id="computer_select" class="form-select" v-model="quantum_backend">
                                 <option value="ibmq" selected>IBMQ simulator</option>
-                                <option value="ionq">IonQ</option>
+                                <option value="ionq">IonQ simulator</option>
                             </select>
                         </div>
                         <div class="col-2"></div>
@@ -75,6 +75,24 @@
                         <div class="col-2">
                             <span class="badge rounded-pill bg-primary">
                                 {{ steps_count }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- J values -->
+                    <div class="row mt-3">
+                        <div class="col-5">
+                            <label for="jval_range" class="form-label">
+                                <span class="">J values</span>
+                            </label>
+                        </div>
+                        <div class="col-5">
+                            <input id="jval_range" v-model.number="jval" type="range" class="form-range" min="1" max="12"
+                                step="1">
+                        </div>
+                        <div class="col-2">
+                            <span class="badge rounded-pill bg-primary">
+                                π / {{ jval }}
                             </span>
                         </div>
                     </div>
@@ -256,7 +274,8 @@ export default {
             // Form
             qbit_count: 5,
             steps_count: 3,
-            quantum_computer: 'ibmq',
+            jval: 6,
+            quantum_backend: 'ibmq',
             places: [],
             activate_ai: false,
             activate_noise: true,
@@ -317,8 +336,9 @@ export default {
             event.preventDefault();
             // Simple POST request with a JSON body using axios
             let data = {
-                computer: this.quantum_computer,
+                quantum_backend: this.quantum_backend,
                 steps: this.steps_count,
+                jval: this.jval,
                 places: this.places,
                 activate_ai: this.activate_ai,
                 activate_noise: this.activate_noise,

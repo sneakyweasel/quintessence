@@ -1,6 +1,6 @@
 '''Quantum circuit generation and execution.'''
 import numpy as np
-from qiskit import Aer, QuantumCircuit, execute
+from qiskit import Aer, QuantumCircuit, execute, transpile
 from qiskit.circuit import Parameter
 from qiskit_aer.noise import depolarizing_error, NoiseModel
 from qiskit_ionq import IonQProvider  # pylint: disable=import-error
@@ -12,7 +12,7 @@ np.seterr(divide='ignore')
 IONQ_API_KEY = "123456"
 
 
-def generate_quantum_circuit(places, steps):
+def generate_quantum_circuit(places, steps, j_val):
     '''Generate the quantum circuit from the JSON data.'''
 
     # Retrieve probabilities
@@ -23,7 +23,7 @@ def generate_quantum_circuit(places, steps):
     # Quantum circuit variables
     start = 0
     probabilities[start] = 0
-    j_val = np.pi / 10
+    j_val = np.pi / j_val
 
     # Define Qiskit parameters
     qbit_count = len(probabilities)
@@ -72,11 +72,11 @@ def generate_quantum_circuit(places, steps):
     return qc_final
 
 
-def run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise=False):
+def run_quantum_circuit(quantum_circuit, quantum_backend, activate_noise=False):
     ''' Run the quantum circuit on the IonQ quantum computer. '''
-    if quantum_computer == 'ibmq':
+    if quantum_backend == 'ibmq':
         backend = Aer.get_backend('aer_simulator')
-    elif quantum_computer == 'ionq':
+    elif quantum_backend == 'ionq':
         provider = IonQProvider(token=IONQ_API_KEY)
         backend = provider.get_backend('ionq_simulator')
     else:
@@ -99,9 +99,15 @@ def run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise=False)
     basis_gates = noise_model.basis_gates
 
     # Run quantum circuit
-    result = execute(quantum_circuit, backend,
-                 coupling_map=coupling_map,
-                 basis_gates=basis_gates,
-                 noise_model=noise_model).result()
+    if quantum_backend == 'ibmq':
+        result = execute(quantum_circuit, backend,
+                    coupling_map=coupling_map,
+                    basis_gates=basis_gates,
+                    noise_model=noise_model).result()
+    elif quantum_backend == 'ionq':
+        transpiled_qc = transpile(quantum_circuit, basis_gates=['rx', 'ry', 'rz', 'rxx', 'id'])
+        result = execute(transpiled_qc, backend).result()
+    else:
+        raise ValueError('Invalid quantum computer.')
 
     return result.get_counts()
