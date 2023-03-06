@@ -1,11 +1,13 @@
 ''' Flask web application. '''
 from flask_cors import CORS
 from flask import Flask, jsonify, request
+# pylint: disable=import-error
 from quantum import generate_quantum_circuit, run_quantum_circuit
 from result_processing import (filter_errors, add_missing_results, get_error_percentage,
                                order_results, convert_to_places, compute_entropy,
                                convert_entropy_to_words, create_gpt3_prompt)
 from ai import retrieve_gpt3_response, convert_storyline_to_image_prompts
+# pylint: enable=import-error
 
 # instantiate the app
 app = Flask(__name__)
