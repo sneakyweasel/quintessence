@@ -46,11 +46,19 @@ pipenv shell
 python server.py
 ```
 
-### OpenAI API keys
+### API keys
 
-If you want to use OpenAI prompts and DallE image generation you'll need to provide your own API keys as env variables in ai.py. The variables are:
+- If you want to use OpenAI prompts and DallE image generation you'll need to provide your own API keys as env variables in ai.py
 
-- OPENAI_API_KEY = "123456"
+```bash
+OPENAI_API_KEY = "123456"
+```
+
+- If you want to use IonQ as your quantum backend you'll need to provide your own API key as an env variable in quantum.py
+
+```bash
+IONQ_API_KEY = "123456"
+```
 
 ## Frontend
 

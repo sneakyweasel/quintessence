@@ -3,13 +3,13 @@ import numpy as np
 from qiskit import Aer, QuantumCircuit, execute
 from qiskit.circuit import Parameter
 from qiskit_aer.noise import depolarizing_error, NoiseModel
-# from qiskit_ionq import IonQProvider  # pylint: disable=import-error
+from qiskit_ionq import IonQProvider  # pylint: disable=import-error
 
 # Ignore divide by zero errors in console
 np.seterr(divide='ignore')
 
 # Load API keys from environment variables
-QUANTUM_API_KEY = "123456"
+IONQ_API_KEY = "123456"
 
 
 def generate_quantum_circuit(places, steps):
@@ -74,7 +74,13 @@ def generate_quantum_circuit(places, steps):
 
 def run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise=False):
     ''' Run the quantum circuit on the IonQ quantum computer. '''
-    backend = Aer.get_backend('aer_simulator')
+    if quantum_computer == 'ibmq':
+        backend = Aer.get_backend('aer_simulator')
+    elif quantum_computer == 'ionq':
+        provider = IonQProvider(token=IONQ_API_KEY)
+        backend = provider.get_backend('ionq_simulator')
+    else:
+        raise ValueError('Invalid quantum computer.')
 
     # Get coupling map from backend
     coupling_map = backend.configuration().coupling_map
@@ -97,5 +103,5 @@ def run_quantum_circuit(quantum_circuit, quantum_computer, activate_noise=False)
                  coupling_map=coupling_map,
                  basis_gates=basis_gates,
                  noise_model=noise_model).result()
-    
+
     return result.get_counts()
