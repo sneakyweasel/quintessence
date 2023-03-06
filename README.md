@@ -32,44 +32,34 @@ Mr. Quanta awoke in a rooftop garden, surrounded by lush foliage and vibrant blo
 
 ![generated Image](./assets/pic0.png)
 
-## Setup
+## Backend
 
-You'll need to provide your own API keys as env variables in quantum.py and openai.py. The variables are:
-
-- OPENAI_API_KEY = "123456"
-- QUANTUM_API_KEY = "123456"
+### Install and run
 
 We provide a pipenv file to install all the python dependencies.
+Running the backend server will make it available at: <http://localhost:5050/>
 
 ```bash
 cd haze-backend
 pipenv install
 pipenv shell
+python server.py
 ```
 
-To install the VueJS frontend, run those commands.
+### OpenAI API keys
+
+If you want to use OpenAI prompts and DallE image generation you'll need to provide your own API keys as env variables in ai.py. The variables are:
+
+- OPENAI_API_KEY = "123456"
+
+## Frontend
+
+Running the frontend client will make it available at: <http://localhost:8080/>
+Open your browser and go this this URL to start the simulation.
 
 ```bash
 cd haze-frontend
 yarn install
-yarn serve
-```
-
-## Run python server
-
-To run "Quantum Haze" you need to run the following command:
-
-```bash
-cd haze-backend
-python server.py
-```
-
-## Run frontend client
-
-Running the frontend client will make it available at: <http://localhost:8080/>
-
-```bash
-cd haze-frontend
 yarn serve
 ```
 
@@ -83,7 +73,7 @@ yarn serve
 
 ## Todos
 
-- [ ] Deploy code to a server
+- [ ] Package code into a docker instance
 - [ ] Add more quantum circuits variables
 - [ ] Display polar graph of quantum circuit results
 - [ ] Generate more interesting storylines
