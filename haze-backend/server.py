@@ -28,10 +28,15 @@ def generate():
         quantum_backend = post_data.get('quantum_backend')
         steps = post_data.get('steps')
         jval = post_data.get('jval')
-        places = post_data.get('places')
+        raw_places = post_data.get('places')
         activate_ai = post_data.get('activate_ai')
         activate_noise = post_data.get('activate_noise')
-        qbit_count = len(places)
+        qbit_count = len(raw_places)
+
+        # Slice places to get only the names and percentages
+        places = []
+        for _i, place in enumerate(raw_places):
+            places.append( [place[0], place[2]] )
 
         # Create quantum circuit
         quantum_circuit = generate_quantum_circuit(places, steps, jval)
