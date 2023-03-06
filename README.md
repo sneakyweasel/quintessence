@@ -37,7 +37,7 @@ Mr. Quanta awoke in a rooftop garden, surrounded by lush foliage and vibrant blo
 ### Install and run
 
 We provide a pipenv file to install all the python dependencies.
-Running the backend server will make it available at: <http://localhost:5050/>
+Running the backend server will make it available at: <http://localhost:5000/>
 
 ```bash
 cd haze-backend
@@ -81,9 +81,8 @@ yarn serve
 
 ## Todos
 
+- [ ] Display radar graph of quantum circuit results
 - [ ] Package code into a docker instance
-- [ ] Add more quantum circuits variables
-- [ ] Display polar graph of quantum circuit results
 - [ ] Generate more interesting storylines
 - [ ] Provide better explanation of what we are doing
 - [ ] Display generated images from the storyline steps

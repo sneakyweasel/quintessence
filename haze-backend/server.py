@@ -67,6 +67,7 @@ def generate():
         response_object = {'status': 'success'}
         response_object['message'] = {
             'raw_results': simulator_results,
+            'ordered_results': ordered_results,
             'results': readable_results,
             'error_percentage': error_percentage,
             'entropy': entropy_measure,

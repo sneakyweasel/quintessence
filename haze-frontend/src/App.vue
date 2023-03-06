@@ -156,6 +156,14 @@
                 </div>
             </div>
 
+            <!-- Radar chart -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Polar graph of the results</h5>
+                </div>
+                <Radar id="radar-chart" :options="chartOptions" :data="chartData" />
+            </div>
+
             <!-- Submit button -->
             <div class="row mt-4" v-if="!display_quantum_results">
                 <div class="col-4"></div>
@@ -167,6 +175,7 @@
                 <div class="col-4"></div>
             </div>
         </form>
+
 
         <!-- Quantum circuit image display -->
         <div class="card mt-4" v-if="display_quantum_results">
@@ -267,18 +276,24 @@
 
 <script>
 import axios from "axios";
+import { Radar } from 'vue-chartjs'
+import { Chart as ChartJS, PolarAreaController, Filler, RadialLinearScale, PointElement, LineElement, ArcElement } from 'chart.js'
+
+ChartJS.register(PolarAreaController, Filler, RadialLinearScale, PointElement, LineElement, ArcElement);
+
 
 export default {
+    components: { Radar },
     data() {
         return {
             // Form
             qbit_count: 5,
-            steps_count: 3,
+            steps_count: 4,
             jval: 6,
             quantum_backend: 'ibmq',
             places: [],
-            activate_ai: false,
             activate_noise: true,
+            activate_ai: false,
             // Quantum computer results
             results: [],
             raw_results: [],
@@ -293,6 +308,23 @@ export default {
             display_ia: false,
             display_polar_plot: false,
             display_story: false,
+            // Chart
+            chartOptions: {
+                responsive: true,
+                scale: {
+                    ticks: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        stepSize: 10
+                    }
+                },
+                elements: {
+                    line: {
+                        borderWidth: 5
+                    }
+                }
+            }
         };
     },
     created() {
@@ -300,6 +332,34 @@ export default {
             this.places.push(this.create_new_place());
         }
         this.places[0][0] = 'Home';
+    },
+    computed: {
+        chartData() {
+            return {
+                labels: this.places.map(p => p[0]),
+                datasets: [{
+                    label: 'My First Dataset',
+                    data: this.places.map(p => 100 - p[1]),
+                    fill: true,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)'
+                }, {
+                    label: 'My Second Dataset',
+                    data: this.results.map(p => p[1] * 100),
+                    fill: true,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)'
+                }]
+            };
+        },
     },
     methods: {
         get_random_place: function () {
@@ -322,6 +382,8 @@ export default {
                     this.places.push(this.create_new_place());
                 }
             }
+            this.chartData.labels = this.places.map(p => p[0]);
+            this.chartData.datasets[0].data = this.places.map(p => p[1]);
         },
         update_place_input: function (i) {
             const place = this.get_random_place();
@@ -330,6 +392,7 @@ export default {
         },
         update_percent_label: function (i) {
             const percent = document.getElementById('prob' + i).value;
+            this.places[i][1] = percent;
             document.getElementById('percent_label_' + i).innerHTML = percent + '%';
         },
         submit_form: function (event) {
@@ -348,12 +411,15 @@ export default {
                 .then(response => {
                     this.results = response.data.message.results;
                     this.raw_results = response.data.message.raw_results;
+                    this.ordered_results = response.data.message.ordered_results;
                     this.error_percentage = response.data.message.error_percentage;
                     this.entropy = response.data.message.entropy;
                     this.entropy_word = response.data.message.entropy_word;
                     this.gpt3_prompt = response.data.message.gpt3_prompt;
                     this.gpt3_response = response.data.message.gpt3_response;
                     this.image_prompts = response.data.message.image_prompts;
+                    // Update radar chart
+                    console.log(response.data.message.results);
                     this.display_quantum_results = true;
                 })
                 .catch(err => {
