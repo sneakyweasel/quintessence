@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+    haze-backend:
+        build: ./haze-backend
+        container_name:  haze-backend
+        restart: always
+        environment: 
+            - APP_NAME=FlaskApp
+        volumes:
+            - './backend:/backend'
+        expose:
+            - 8080
+
+    haze-frontend:
+        build: ./haze-frontend
+        container_name:  haze-frontend
+        restart: always
+        environment: 
+            - APP_NAME=VueApp
+        ports:
+            - "80:80"

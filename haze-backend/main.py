@@ -1,4 +1,5 @@
 ''' Flask web application. '''
+import os
 from flask_cors import CORS
 from flask import Flask, jsonify, request
 # pylint: disable=import-error
@@ -9,14 +10,19 @@ from result_processing import (filter_errors, add_missing_results, get_error_per
 from ai import retrieve_gpt3_response, convert_storyline_to_image_prompts
 # pylint: enable=import-error
 
-# instantiate the app
+# Instantiate the app
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.debug = True
 
-# enable CORS
+# Enable CORS
 CORS(app, resources={r'/*': {'origins': '*'}})
 
+# Sanity check route
+@app.route("/")
+def hello():
+    ''' Sanity check route '''
+    return "Python flask server is running! :D"
 
 # Lauch quantum comic generation
 @app.route('/generate', methods=['POST'])
@@ -88,4 +94,5 @@ def generate():
 
 
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get('PORT', 8080))
+    app.run(debug=True, host='0.0.0.0', port=port)
