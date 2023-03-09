@@ -2,7 +2,7 @@ FROM python:3.8
 
 RUN pip install pipenv
 
-ENV PROJECT_DIR /haze-backend
+ENV PROJECT_DIR /backend
 
 COPY . /${PROJECT_DIR}
 WORKDIR ${PROJECT_DIR}

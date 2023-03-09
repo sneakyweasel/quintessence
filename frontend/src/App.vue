@@ -445,7 +445,7 @@ export default {
                 activate_ai: this.activate_ai,
                 activate_noise: this.activate_noise,
             };
-            const path = 'http://localhost:5000/generate';
+            const path = 'http://localhost:8080/generate';
             axios.post(path, data)
                 .then(response => {
                     this.results = response.data.message.results;
