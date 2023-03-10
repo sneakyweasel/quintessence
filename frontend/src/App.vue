@@ -167,7 +167,7 @@
 
                     </div>
                 </div>
-                <Radar id="radar-chart" :options="chartOptions" :data="chartData" />
+                <Radar id="radar-chart" :options="radar_chart_options" :data="radar_chart_data" />
             </div>
 
             <!-- Submit button -->
@@ -217,29 +217,8 @@
                     </li>
                 </ul>
 
-                <!-- Processed results -->
-                <div v-for="[place, prob], i in results" :key="'qbit_result_' + i" class="row mt-2">
-
-                    <!-- Place text input -->
-                    <div class="col-5">
-                        <div class="input-group">
-                            <input :id="'result_place_' + i" type="text" class="form-control" :value="place"
-                                :key="'result_place' + i" disabled>
-                        </div>
-                    </div>
-                    <!-- Probability slider input -->
-                    <div class="col-5 mt-2">
-                        <input :id="'result_prob' + i" type="range" class="form-range" :value="prob * 100" min="0" max="100"
-                            step="10" :key="'result_prob' + i" disabled>
-                    </div>
-                    <!-- Probability percentage display -->
-                    <div class="col-2 mt-1">
-                        <span :id="'percent_label_' + i" class="badge rounded-pill bg-primary">
-                            {{ (prob * 100).toFixed(2) }}%
-                        </span>
-                    </div>
-
-                </div>
+                <!-- Bar chart result display -->
+                <Bar id="bar-chart" :options="bar_chart_options" :data="bar_chart_data" />
             </div>
         </div>
 
@@ -282,14 +261,16 @@
 
 <script>
 import axios from "axios";
-import { Radar } from 'vue-chartjs'
+import { Bar, Radar } from 'vue-chartjs'
 import { Chart as ChartJS, PolarAreaController, Filler, RadialLinearScale, PointElement, LineElement, ArcElement } from 'chart.js'
+import { Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 
 ChartJS.register(PolarAreaController, Filler, RadialLinearScale, PointElement, LineElement, ArcElement);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 
 export default {
-    components: { Radar },
+    components: { Bar, Radar },
     data() {
         return {
             // Form
@@ -315,7 +296,7 @@ export default {
             display_polar_plot: false,
             display_story: false,
             // Chart
-            chartOptions: {
+            radar_chart_options: {
                 responsive: true,
                 scale: {
                     r: {
@@ -336,6 +317,14 @@ export default {
                         borderWidth: 4
                     }
                 }
+            },
+            bar_chart_options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
             }
         };
     },
@@ -349,7 +338,7 @@ export default {
         this.normalize_percentages();
     },
     computed: {
-        chartData() {
+        radar_chart_data() {
             return {
                 labels: this.places.map(p => p[0]),
                 datasets: [{
@@ -372,6 +361,16 @@ export default {
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
                     pointHoverBorderColor: 'rgb(54, 162, 235)'
+                }]
+            };
+        },
+        bar_chart_data() {
+            return {
+                labels: this.places.map(p => p[0]),
+                datasets: [{
+                    label: 'Results',
+                    data: this.results.map(p => p[1] * 100),
+                    // data: this.places.map(p => p[2]),
                 }]
             };
         },

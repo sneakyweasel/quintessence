@@ -1,6 +1,7 @@
-version: "3.7"
+version: "3.9"
 
 services:
+    # Flask backend
     backend_local:
         build: ./backend
         container_name: backend_local
@@ -14,6 +15,7 @@ services:
         expose:
             - 8080
 
+    # Vue.js frontend
     frontend_local:
         build: ./frontend
         container_name: frontend_local
