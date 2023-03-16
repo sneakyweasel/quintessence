@@ -5,6 +5,7 @@ from qiskit import Aer, QuantumCircuit, execute, transpile
 from qiskit.circuit import Parameter
 from qiskit_aer.noise import depolarizing_error, NoiseModel
 from qiskit_ionq import IonQProvider  # pylint: disable=import-error
+import keys_config
 
 # Ignore divide by zero errors in console
 np.seterr(divide='ignore')
@@ -77,7 +78,7 @@ def run_quantum_circuit(quantum_circuit, quantum_backend, activate_noise=False):
     if quantum_backend == 'ibmq':
         backend = Aer.get_backend('aer_simulator')
     elif quantum_backend == 'ionq':
-        provider = IonQProvider(token=os.getenv('IONQ_API_KEY'))
+        provider = IonQProvider(token=os.getenv(ionq_key))
         backend = provider.get_backend('ionq_simulator')
     else:
         raise ValueError('Invalid quantum computer.')

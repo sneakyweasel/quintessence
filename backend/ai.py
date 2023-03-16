@@ -2,10 +2,11 @@
 import os
 import openai
 import requests
+import keys_config
 
 def retrieve_gpt3_response(prompt):
     ''' GPT-3 prompt and evaluation method.'''
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+    openai.api_key = os.getenv(openai_api_key)
 
     # Send the prompt to GPT-3
     response = openai.Completion.create(
