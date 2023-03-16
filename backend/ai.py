@@ -1,14 +1,11 @@
 ''' GPT-3 and DALL-E integration. '''
+import os
 import openai
 import requests
 
-OPENAI_API_KEY = "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"
-# OPENAI_API_KEY = "123456"
-
-
 def retrieve_gpt3_response(prompt):
     ''' GPT-3 prompt and evaluation method.'''
-    openai.api_key = OPENAI_API_KEY
+    openai.api_key = os.getenv('OPENAI_API_KEY')
 
     # Send the prompt to GPT-3
     response = openai.Completion.create(
@@ -34,7 +31,7 @@ def convert_storyline_to_image_prompts(storyline):
 
 def retrieve_image_from_dalle(image_prompt):
     ''' Method to create images from the DALL-E API.'''
-    openai.api_key = OPENAI_API_KEY
+    openai.api_key = os.getenv('OPENAI_API_KEY')
 
     # Send the prompt to DALL-E
     response = openai.Image.create(

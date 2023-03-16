@@ -32,6 +32,14 @@ Mr. Quanta awoke in a rooftop garden, surrounded by lush foliage and vibrant blo
 
 ![generated Image](./assets/pic0.png)
 
+## Docker
+
+To automatically install and run the backend and frontend you can run:
+
+```bash
+docker compose up
+```
+
 ## Backend
 
 ### Install and run
@@ -40,7 +48,7 @@ We provide a pipenv file to install all the python dependencies.
 Running the backend server will make it available at: <http://localhost:5000/>
 
 ```bash
-cd haze-backend
+cd backend
 pipenv install
 pipenv shell
 python server.py
@@ -66,7 +74,7 @@ Running the frontend client will make it available at: <http://localhost:8080/>
 Open your browser and go this this URL to start the simulation.
 
 ```bash
-cd haze-frontend
+cd frontend
 yarn install
 yarn serve
 ```
@@ -81,8 +89,8 @@ yarn serve
 
 ## Todos
 
-- [ ] Display radar graph of quantum circuit results
-- [ ] Package code into a docker instance
+- [ ] Pass API keys as docker secrets
+- [ ] Deploy to AWS
 - [ ] Generate more interesting storylines
 - [ ] Provide better explanation of what we are doing
 - [ ] Display generated images from the storyline steps

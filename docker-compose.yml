@@ -8,13 +8,14 @@ services:
         restart: always
         environment:
             - APP_NAME=FlaskApp
+            - OPENAI_API_KEY=sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         volumes:
             - './backend:/backend'
         ports:
             - "8080:8080"
         expose:
             - 8080
-
+        
     # Vue.js frontend
     frontend_local:
         build: ./frontend

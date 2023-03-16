@@ -1,4 +1,5 @@
 '''Quantum circuit generation and execution.'''
+import os
 import numpy as np
 from qiskit import Aer, QuantumCircuit, execute, transpile
 from qiskit.circuit import Parameter
@@ -9,7 +10,6 @@ from qiskit_ionq import IonQProvider  # pylint: disable=import-error
 np.seterr(divide='ignore')
 
 # Load API keys from environment variables
-IONQ_API_KEY = "123456"
 
 
 def generate_quantum_circuit(places, steps, j_val):
@@ -77,7 +77,7 @@ def run_quantum_circuit(quantum_circuit, quantum_backend, activate_noise=False):
     if quantum_backend == 'ibmq':
         backend = Aer.get_backend('aer_simulator')
     elif quantum_backend == 'ionq':
-        provider = IonQProvider(token=IONQ_API_KEY)
+        provider = IonQProvider(token=os.getenv('IONQ_API_KEY'))
         backend = provider.get_backend('ionq_simulator')
     else:
         raise ValueError('Invalid quantum computer.')
